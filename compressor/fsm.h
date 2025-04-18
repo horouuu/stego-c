@@ -1,4 +1,8 @@
+#ifndef FSM_H
+#define FSM_H
+
 #include <stdio.h>
+
 typedef enum
 {
     START,
@@ -12,3 +16,5 @@ typedef enum
 } FSMState;
 
 void run_fsm(const char *input, FILE *out);
+
+#endif

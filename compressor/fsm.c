@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <ctype.h>
 #include "fsm.h"
-
-int is_keyword(const char *token, unsigned char *output_byte);
+#include "keyword_map.h"
 
 #define MAX_TOKEN 64
 
@@ -13,7 +13,7 @@ void write_raw_byte(FILE *out, unsigned char ch)
 
 void run_fsm(const char *input, FILE *out)
 {
-    enum FSMState state = START;
+    FSMState state = START;
     int curr_char;
     char token[MAX_TOKEN];
     int token_len = 0;
@@ -41,7 +41,7 @@ void run_fsm(const char *input, FILE *out)
             break;
 
         case IDENTIFIER_OR_KEYWORD:
-            if (isalpha(curr_char))
+            if (isalpha((unsigned char)curr_char))
             {
                 if (token_len < MAX_TOKEN - 1)
                     token[token_len++] = curr_char;
@@ -68,4 +68,22 @@ void run_fsm(const char *input, FILE *out)
             break;
         }
     }
+}
+
+int main()
+{
+    const char *input = "int hello;";
+
+    FILE *out = fopen("output.bin", "wb");
+    if (out == NULL)
+    {
+        perror("Failed to open output file");
+        return 1;
+    }
+
+    run_fsm(input, out);
+    fclose(out);
+
+    printf("FSM run complete. Output written to output.bin\n");
+    return 0;
 }
