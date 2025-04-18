@@ -64,54 +64,43 @@ void run_fsm(const char *input, FILE *out)
             else
             {
                 token[token_len] = '\0';
-                if (is_keyword(token, &byte))
-                {
-                    write_raw_byte(out, byte);
-                }
-                else
-                {
-                    for (token_i = 0; token_i < token_len; token_i++)
-                    {
-                        write_raw_byte(out, token[token_i]);
-                    }
-                }
-                token_len = 0;
-                state = START;
-                i--;
+                i--; // reprocess later
+                state = KEYWORD_CHECK;
             }
             break;
         case DIV_OR_COMMENT:
-            if(curr_char == '/')
+            if (curr_char == '/')
             {
                 state = SINGLE_LINE_COMMENT;
-            } 
-            else if(curr_char == '*')
+            }
+            else if (curr_char == '*')
             {
                 state = MULTI_LINE_COMMENT;
             }
-            else 
+            else
             {
                 state = START;
             }
             break;
         case SINGLE_LINE_COMMENT:
-            if(curr_char == '\n')
+            if (curr_char == '\n')
             {
+                write_raw_byte(out, curr_char);
                 state = END_COMMENT;
             }
             break;
         case MULTI_LINE_COMMENT:
-            if(curr_char == '*')
+            if (curr_char == '*')
             {
                 state = MLC_END_CHECK;
             }
             break;
         case MLC_END_CHECK:
-            if(curr_char == '*')
+            if (curr_char == '*')
             {
                 state = MLC_END_CHECK;
             }
-            else if(curr_char == '/')
+            else if (curr_char == '/')
             {
                 state = END_COMMENT;
             }
@@ -121,25 +110,52 @@ void run_fsm(const char *input, FILE *out)
             }
             break;
         case END_COMMENT:
-            if(!isalpha(curr_char))
+            // isalpha takes precedence
+            if (isalpha(curr_char))
+            {
+                if (token_len < MAX_TOKEN - 1)
+                    token[token_len++] = curr_char;
+
+                state = IDENTIFIER_OR_KEYWORD;
+            }
+            else if (curr_char == '/')
+            {
+                state = DIV_OR_COMMENT;
+            }
+            else if ((unsigned char)curr_char <= 127)
+            {
+                // write out any characters with ASCII code <= 127
+                write_raw_byte(out, curr_char);
+                state = START;
+            }
+            else
             {
                 state = START;
             }
-            else if(isalpha(curr_char))
+            break;
+        case KEYWORD_CHECK:
+            if (is_keyword(token, &byte))
             {
-                state = IDENTIFIER_OR_KEYWORD;
+                write_raw_byte(out, byte);
             }
+            else
+            {
+                for (token_i = 0; token_i < token_len; token_i++)
+                {
+                    write_raw_byte(out, token[token_i]);
+                }
+            }
+            token_len = 0;
+            i--; // reprocess later
+            state = START;
             break;
-        case KEYWORD_CHECK: // unused currently, including it here to silence gcc warning
-            break;
-        } 
-
+        }
     }
 }
 
 int main()
 {
-    char* input_buffer = (char*) malloc(MAX_INPUT_LENGTH * sizeof(char));
+    char *input_buffer = (char *)malloc(MAX_INPUT_LENGTH * sizeof(char));
     read_input_file(input_buffer, "input.txt");
     printf("buffer:\n %s\n", input_buffer);
 
