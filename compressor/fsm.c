@@ -34,9 +34,21 @@ void run_fsm(const char *input, FILE *out)
             {
                 state = DIV_OR_COMMENT;
             }
+            else if ((unsigned char)curr_char <= 127)
+            {
+                // write out any characters with ASCII code <= 127
+                write_raw_byte(out, curr_char);
+            }
             else
             {
-                write_raw_byte(out, curr_char);
+                if (isprint(curr_char))
+                {
+                    printf("[WARN] Unexpected character skipped: '%c'\n", curr_char);
+                }
+                else
+                {
+                    printf("[WARN] Unexpected non-printable character skipped\n");
+                }
             }
             break;
 
