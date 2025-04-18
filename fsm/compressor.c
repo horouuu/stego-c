@@ -1,11 +1,14 @@
-#include <stdio.h>
-#include <ctype.h>
 #include "compressor.h"
 #include "keyword_map.h"
+#include "file_reader.h"
+#include <stdio.h>
+#include <ctype.h>
+#include <stdlib.h>
 
+#define MAX_INPUT_LENGTH 1000
 #define MAX_TOKEN 64
 
-// Writes the ASCII value of the character
+/* Writes the ASCII value of the character*/
 void write_raw_byte(FILE *out, unsigned char ch)
 {
     fputc(ch, out);
@@ -19,6 +22,7 @@ void run_fsm(const char *input, FILE *out)
     int token_len = 0;
     size_t i = 0;
     size_t token_i;
+    unsigned char byte;
 
     while ((curr_char = input[i++]) != '\0')
     {
@@ -51,7 +55,6 @@ void run_fsm(const char *input, FILE *out)
                 }
             }
             break;
-
         case IDENTIFIER_OR_KEYWORD:
             if (isalpha((unsigned char)curr_char))
             {
@@ -61,7 +64,6 @@ void run_fsm(const char *input, FILE *out)
             else
             {
                 token[token_len] = '\0';
-                unsigned char byte;
                 if (is_keyword(token, &byte))
                 {
                     write_raw_byte(out, byte);
@@ -78,12 +80,69 @@ void run_fsm(const char *input, FILE *out)
                 i--;
             }
             break;
-        }
+        case DIV_OR_COMMENT:
+            if(curr_char == '/')
+            {
+                state = SINGLE_LINE_COMMENT;
+            } 
+            else if(curr_char == '*')
+            {
+                state = MULTI_LINE_COMMENT;
+            }
+            else 
+            {
+                state = START;
+            }
+            break;
+        case SINGLE_LINE_COMMENT:
+            if(curr_char == '\n')
+            {
+                state = END_COMMENT;
+            }
+            break;
+        case MULTI_LINE_COMMENT:
+            if(curr_char == '*')
+            {
+                state = MLC_END_CHECK;
+            }
+            break;
+        case MLC_END_CHECK:
+            if(curr_char == '*')
+            {
+                state = MLC_END_CHECK;
+            }
+            else if(curr_char == '/')
+            {
+                state = END_COMMENT;
+            }
+            else
+            {
+                state = MULTI_LINE_COMMENT;
+            }
+            break;
+        case END_COMMENT:
+            if(!isalpha(curr_char))
+            {
+                state = START;
+            }
+            else if(isalpha(curr_char))
+            {
+                state = IDENTIFIER_OR_KEYWORD;
+            }
+            break;
+        case KEYWORD_CHECK: // unused currently, including it here to silence gcc warning
+            break;
+        } 
+
     }
 }
 
 int main()
 {
+    char* input_buffer = (char*) malloc(MAX_INPUT_LENGTH * sizeof(char));
+    read_input_file(input_buffer, "input.txt");
+    printf("buffer:\n %s\n", input_buffer);
+
     const char *input = "int hello;";
 
     FILE *out = fopen("output.bin", "wb");
@@ -93,7 +152,7 @@ int main()
         return 1;
     }
 
-    run_fsm(input, out);
+    run_fsm(input_buffer, out);
     fclose(out);
 
     printf("FSM run complete. Output written to output.bin\n");
