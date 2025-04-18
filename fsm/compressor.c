@@ -52,6 +52,8 @@ void run_fsm(const char *input, FILE *out)
                 else
                 {
                     printf("[WARN] Unexpected non-printable character skipped\n");
+                    printf("ascii: %d\n", curr_char);
+                    printf("char: %c\n", curr_char);
                 }
             }
             break;
@@ -155,8 +157,10 @@ void run_fsm(const char *input, FILE *out)
 
 int main()
 {
-    char *input_buffer = (char *)malloc(MAX_INPUT_LENGTH * sizeof(char));
-    read_input_file(input_buffer, "input.txt");
+    int file_len = get_file_length("input.txt");
+    char *input_buffer = (char *)malloc(file_len * sizeof(char));
+
+    read_input_file(input_buffer, file_len, "input.txt");
     printf("buffer:\n %s\n", input_buffer);
 
     const char *input = "int hello;";

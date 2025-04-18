@@ -1,18 +1,33 @@
 #include <stdio.h>
 #include <string.h>
-int read_input_file(char *buffer, const char *filepath)
+int get_file_length(const char *filepath)
 {
+
     FILE *fp = NULL;
-    // int buffer_offset = 0;
-    fp = fopen(filepath, "r");
-    // char* line_buffer = (char*) malloc(100 * sizeof(char));
+    fp = fopen(filepath, "r");    
     if (fp == NULL)
     {
         perror("Error: ");
         return -1;
     }
-    size_t bytes_read = fread(buffer, 1, 999, fp);
-    buffer[bytes_read] = '\0';
+    char c;
+    int file_len = 0;
+    while((c = fgetc(fp) != EOF)){
+        file_len ++;
+    }
+    return file_len;
+}
+int read_input_file(char *buffer, int file_len, const char *filepath)
+{
+    FILE *fp = NULL;
+    fp = fopen(filepath, "r");
+    if (fp == NULL)
+    {
+        perror("Error: ");
+        return -1;
+    }
+    fread(buffer, 1, file_len - 1, fp);
+    buffer[file_len] = '\0';
     fclose(fp);
     fp = NULL;
 
