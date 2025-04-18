@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
-#include "fsm.h"
+#include "compressor.h"
 #include "keyword_map.h"
 
 #define MAX_TOKEN 64

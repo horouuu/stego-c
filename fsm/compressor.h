@@ -1,5 +1,5 @@
-#ifndef FSM_H
-#define FSM_H
+#ifndef COMPRESSOR_H
+#define COMPRESSOR_H
 
 #include <stdio.h>
 
