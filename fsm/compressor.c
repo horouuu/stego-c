@@ -1,6 +1,6 @@
 #include "compressor.h"
 #include "keyword_map.h"
-#include "file_reader.h"
+#include "file_io.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -8,13 +8,13 @@
 #define MAX_INPUT_LENGTH 1000
 #define MAX_TOKEN 64
 
-/* Writes the ASCII value of the character*/
-void write_raw_byte(FILE *out, unsigned char ch)
-{
-    fputc(ch, out);
-}
+// /* Writes the ASCII value of the character*/
+// void write_raw_byte(FILE *out, unsigned char ch)
+// {
+//     fputc(ch, out);
+// }
 
-void run_fsm(const char *input, FILE *out)
+void run_fsm(const unsigned char *input, FILE *out)
 {
     FSMState state = START;
     int curr_char;
@@ -155,26 +155,26 @@ void run_fsm(const char *input, FILE *out)
     }
 }
 
-int main()
-{
-    int file_len = get_file_length("input.txt");
-    char *input_buffer = (char *)malloc(file_len * sizeof(char));
+// int main()
+// {
+//     int file_len = get_file_length("input.txt");
+//     char *input_buffer = (char *)malloc(file_len * sizeof(char));
 
-    read_input_file(input_buffer, file_len, "input.txt");
-    printf("buffer:\n %s\n", input_buffer);
+//     read_input_file(input_buffer, file_len, "input.txt");
+//     printf("buffer:\n %s\n", input_buffer);
 
-    const char *input = "int hello;";
+//     const char *input = "int hello;";
 
-    FILE *out = fopen("output.bin", "wb");
-    if (out == NULL)
-    {
-        perror("Failed to open output file");
-        return 1;
-    }
+//     FILE *out = fopen("output.bin", "wb");
+//     if (out == NULL)
+//     {
+//         perror("Failed to open output file");
+//         return 1;
+//     }
 
-    run_fsm(input_buffer, out);
-    fclose(out);
+//     run_fsm(input_buffer, out);
+//     fclose(out);
 
-    printf("FSM run complete. Output written to output.bin\n");
-    return 0;
-}
+//     printf("FSM run complete. Output written to output.bin\n");
+//     return 0;
+// }
