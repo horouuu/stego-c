@@ -1,6 +1,7 @@
 #include <stdio.h> 
 #include <dirent.h> 
 #include <string.h>
+#include "directory_parser.h"
 int get_num_files_in_directory(const char* directory_path)
 {
     struct dirent* entry;
