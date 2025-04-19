@@ -20,19 +20,16 @@ int is_bin_file(char *filename)
 int get_file_length(const char *filepath)
 {
 
-    FILE *fp = NULL;
-    fp = fopen(filepath, "rb");
+    FILE *fp = fopen(filepath, "rb");
     if (fp == NULL)
     {
         perror("Error: ");
         return -1;
     }
-    int c;
-    int file_len = 0;
-    while ((c = fgetc(fp) != EOF))
-    {
-        file_len++;
-    }
+
+    fseek(fp, 0, SEEK_END);
+    int file_len = ftell(fp);
+    fclose(fp);
     return file_len;
 }
 

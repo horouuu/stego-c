@@ -40,7 +40,7 @@ int decompress_and_save(char* input_filepath, char* input_filename, const char* 
     strcpy(output_filepath + output_filepath_len - 2 , ".c");
     // decompressor
     int decompressor_input_file_len = get_file_length(input_filepath);
-    unsigned char *decompressor_input_buffer = (unsigned char *)malloc(decompressor_input_file_len * sizeof(unsigned char));
+    unsigned char *decompressor_input_buffer = (unsigned char *)malloc((decompressor_input_file_len + 1)* sizeof(unsigned char));
 
     read_input_file(decompressor_input_buffer, decompressor_input_file_len, input_filepath);
 
