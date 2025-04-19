@@ -14,7 +14,7 @@
 //     fputc(ch, out);
 // }
 
-void run_fsm(const char *input, FILE *out)
+void run_fsm(const unsigned char *input, FILE *out)
 {
     FSMState state = START;
     int curr_char;

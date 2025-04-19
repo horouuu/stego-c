@@ -17,7 +17,7 @@ int get_file_length(const char *filepath)
     }
     return file_len;
 }
-int read_input_file(char *buffer, int file_len, const char *filepath)
+int read_input_file(unsigned char *buffer, int file_len, const char *filepath)
 {
     FILE *fp = NULL;
     fp = fopen(filepath, "rb");

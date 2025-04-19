@@ -7,7 +7,7 @@
 #include <string.h>
 #define MAX_TOKEN 64
 
-void run_decompressor(const char *input, FILE *out){
+void run_decompressor(const unsigned char *input, FILE *out){
 
     int curr_char;
     size_t i = 0;

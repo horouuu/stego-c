@@ -11,7 +11,7 @@ int main(){
     char* compressor_input_filename = "input.txt";
     char* compressor_output_filename = "output.bin";
     int file_len = get_file_length(compressor_input_filename);
-    char *compressor_input_buffer = (char *)malloc(file_len * sizeof(unsigned char));
+    unsigned char *compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
     printf("====starting compression===\n");
     printf("number of chars in input: %d\n", file_len);
 
@@ -35,7 +35,7 @@ int main(){
     // decompressor
     char* decompressor_output_filename = "decompressed_input.txt";
     int decompressor_input_file_len = get_file_length(compressor_output_filename);
-    char *decompressor_input_buffer = (char *)malloc(decompressor_input_file_len * sizeof(char));
+    unsigned char *decompressor_input_buffer = (unsigned char *)malloc(decompressor_input_file_len * sizeof(unsigned char));
 
     read_input_file(decompressor_input_buffer, decompressor_input_file_len, compressor_output_filename);
 

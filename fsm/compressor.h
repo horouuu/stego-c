@@ -15,6 +15,6 @@ typedef enum
     END_COMMENT
 } FSMState;
 
-void run_fsm(const char *input, FILE *out);
+void run_fsm(const unsigned char *input, FILE *out);
 
 #endif
