@@ -13,7 +13,7 @@ int get_file_length(const char *filepath)
         perror("Error: ");
         return -1;
     }
-    char c; // TODO: change to int
+    int c;
     int file_len = 0;
     while ((c = fgetc(fp) != EOF))
     {
