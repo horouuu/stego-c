@@ -19,7 +19,7 @@ int get_num_files_in_directory(const char* directory_path)
     return num_files;
 }
 
-int get_files_in_directory(char* directory_path, int num_files, char** filenames)
+int get_files_in_directory(const char* directory_path, int num_files, char** filenames)
 {
     struct dirent* entry;
     DIR* dir = opendir(directory_path);
