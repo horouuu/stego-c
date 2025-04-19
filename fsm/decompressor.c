@@ -8,14 +8,14 @@
 #include <string.h>
 #define MAX_TOKEN 64
 
-void run_decompressor(const unsigned char *input, FILE *out){
+void run_decompressor(const unsigned char *input, int file_len, FILE *out){
 
     int curr_char;
     size_t i = 0;
     size_t token_i;
     char* output_keyword = malloc(sizeof(char) * MAX_TOKEN);
-    while ((curr_char = input[i++]) != '\0'){
-        // printf("curr_char: %c\n",curr_char);
+    for(int i = 0 ; i < file_len ; i ++){
+        curr_char = input[i];
         if(is_compressed_keyword(curr_char, output_keyword)){
             for(int j = 0 ; j < strlen(output_keyword) ; j ++){
                 write_raw_byte(out, output_keyword[j]);
@@ -51,7 +51,7 @@ int decompress_and_save(char* input_filepath, char* input_filename, const char* 
         return 0;
     }
 
-    run_decompressor(decompressor_input_buffer, decompressor_out);
+    run_decompressor(decompressor_input_buffer, decompressor_input_file_len, decompressor_out);
     fclose(decompressor_out);
 
     printf("Decompressor run complete. Output written to decompressed_input.txt\n");
