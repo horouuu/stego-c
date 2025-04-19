@@ -1,6 +1,7 @@
 #include "file_io.h"
 #include "decompressor.h"
 #include "compressor.h"
+#include "directory_parser.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -8,11 +9,18 @@
 int main()
 {
 
-    // // compressor
-    char *compressor_input_filename = "input.txt";
-    char *compressor_output_filename = "output.bin";
+    const char *compressor_input_directory = "../compressor_input";
+    const char *compressor_output_directory = "../compressor_output";
+    const char *decompressor_output_directory = "../decompressor_output";
+    compress_and_save_multiple(compressor_input_directory, compressor_output_directory);
+    decompress_and_save_multiple(compressor_output_directory, decompressor_output_directory);
 
-    if(!compress_and_save(compressor_input_filename, compressor_output_filename)){
+    // // compressor
+    char *compressor_input_filename = "input.c";
+    char *compressor_input_filepath = "../compressor_input/input.c";
+    char *compressor_output_filename = "../compressor_output/input.bin";
+
+    if(!compress_and_save(compressor_input_filepath, compressor_input_filename, "../compressor_output")){
         perror("Error: compression failed");
         return 1;
     }
@@ -29,12 +37,6 @@ int main()
         printf("\n");
 
         free_compressed_file(cf);
-    }
-    char *decompressor_output_filename = "decompressed_input.txt";
-
-    if(!decompress_and_save(compressor_output_filename,decompressor_output_filename)){
-        perror("Error: decompression failed");
-        return 1;
     }
     return 0;
 }

@@ -2,7 +2,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include "file_io.h"
-
+#include "directory_parser.h"
+int is_c_file(char* filename){
+    size_t len = strlen(filename);
+    if (len < 2) 
+        return 0; 
+    return strncmp(filename + len - 2, ".c", 2) == 0;
+}
+int is_bin_file(char* filename){
+    size_t len = strlen(filename);
+    if (len < 4) 
+        return 0; 
+    return strncmp(filename + len - 4, ".bin", 4) == 0;
+}
 int get_file_length(const char *filepath)
 {
 

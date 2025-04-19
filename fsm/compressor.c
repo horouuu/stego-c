@@ -1,10 +1,11 @@
 #include "compressor.h"
 #include "keyword_map.h"
 #include "file_io.h"
+#include "directory_parser.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-
+#include <string.h>
 #define MAX_INPUT_LENGTH 1000
 #define MAX_TOKEN 64
 
@@ -155,7 +156,16 @@ void run_fsm(const unsigned char *input, FILE *out)
     }
 }
 
-int compress_and_save(char* input_filepath, char* output_filepath){
+int compress_and_save(char* input_filepath, char* input_filename, const char* output_directory){
+    size_t input_filename_len = strlen(input_filename);
+    char output_filepath[256] = "";
+    // building output_filepath
+    strcat(output_filepath, output_directory);
+    strcat(output_filepath, "/");
+    strcat(output_filepath, input_filename);
+    size_t output_filepath_len = strlen(output_filepath);
+    // replace .c with .bin
+    strcpy(output_filepath + output_filepath_len - 2 , ".bin");
 
     int file_len = get_file_length(input_filepath);
     unsigned char *compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
@@ -174,30 +184,34 @@ int compress_and_save(char* input_filepath, char* output_filepath){
     run_fsm(compressor_input_buffer, out);
     fclose(out);
 
-    printf("Compressor FSM run complete. Output written to output.bin\n");
+    printf("Compressor FSM run complete. Output written to %s\n", output_filepath);
     printf("====end compression===\n\n");
     return 1;
 }
-// int main()
-// {
-//     int file_len = get_file_length("input.txt");
-//     char *input_buffer = (char *)malloc(file_len * sizeof(char));
 
-//     read_input_file(input_buffer, file_len, "input.txt");
-//     printf("buffer:\n %s\n", input_buffer);
+int compress_and_save_multiple(const char* input_directory, const char* output_directory)
+{
+    int num_files_in_dir = get_num_files_in_directory(input_directory);
+    printf("number of files in input directory: %d\n", num_files_in_dir);
+    char** filenames = malloc(num_files_in_dir * sizeof(char*));
+    for(int i = 0 ; i < num_files_in_dir ; i ++){
+        // assuming 256 is max filename length
+        filenames[i] = malloc(sizeof(char) * 256);
+    }
+    get_files_in_directory(input_directory, num_files_in_dir, filenames);
+    for(int i = 0 ; i < num_files_in_dir ; i ++){
+        if(!is_c_file(filenames[i])){
+            printf("[WARN] skipping input file: %s as it is not a c file\n", filenames[i]);
+            continue;
+        }
 
-//     const char *input = "int hello;";
+        char full_input_path[256] = "";
+        strcat(full_input_path, input_directory);
+        strcat(full_input_path, "/");
+        strcat(full_input_path, filenames[i]);
+        printf("compressing file at input path: %s\n", full_input_path);
+        compress_and_save(full_input_path, filenames[i], output_directory);
+    }
+    return 0;
+}
 
-//     FILE *out = fopen("output.bin", "wb");
-//     if (out == NULL)
-//     {
-//         perror("Failed to open output file");
-//         return 1;
-//     }
-
-//     run_fsm(input_buffer, out);
-//     fclose(out);
-
-//     printf("FSM run complete. Output written to output.bin\n");
-//     return 0;
-// }
