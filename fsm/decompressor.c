@@ -24,3 +24,28 @@ void run_decompressor(const unsigned char *input, FILE *out){
         }
     }
 }
+
+int decompress_and_save(char* input_filepath, char* output_filepath){
+
+    printf("====starting decompression===\n");
+
+    // decompressor
+    int decompressor_input_file_len = get_file_length(input_filepath);
+    unsigned char *decompressor_input_buffer = (unsigned char *)malloc(decompressor_input_file_len * sizeof(unsigned char));
+
+    read_input_file(decompressor_input_buffer, decompressor_input_file_len, input_filepath);
+
+    FILE *decompressor_out = fopen(output_filepath, "wb");
+    if (decompressor_out == NULL)
+    {
+        perror("Error: Failed to open output file");
+        return 0;
+    }
+
+    run_decompressor(decompressor_input_buffer, decompressor_out);
+    fclose(decompressor_out);
+
+    printf("Decompressor run complete. Output written to decompressed_input.txt\n");
+    printf("====end decompression===\n");
+    return 1;
+}

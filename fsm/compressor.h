@@ -16,5 +16,5 @@ typedef enum
 } FSMState;
 
 void run_fsm(const unsigned char *input, FILE *out);
-
+int compress_and_save(char* input_filepath, char* output_filepath);
 #endif

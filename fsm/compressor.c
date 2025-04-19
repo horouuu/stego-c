@@ -155,6 +155,29 @@ void run_fsm(const unsigned char *input, FILE *out)
     }
 }
 
+int compress_and_save(char* input_filepath, char* output_filepath){
+
+    int file_len = get_file_length(input_filepath);
+    unsigned char *compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
+    printf("====starting compression===\n");
+    printf("number of chars in input: %d\n", file_len);
+
+    read_input_file(compressor_input_buffer, file_len, input_filepath);
+
+    FILE *out = fopen(output_filepath, "wb");
+    if (out == NULL)
+    {
+        perror("Error: Failed to open output file");
+        return 0;
+    }
+
+    run_fsm(compressor_input_buffer, out);
+    fclose(out);
+
+    printf("Compressor FSM run complete. Output written to output.bin\n");
+    printf("====end compression===\n\n");
+    return 1;
+}
 // int main()
 // {
 //     int file_len = get_file_length("input.txt");
