@@ -3,16 +3,18 @@
 #include <string.h>
 #include "file_io.h"
 #include "directory_parser.h"
-int is_c_file(char* filename){
+int is_c_file(char *filename)
+{
     size_t len = strlen(filename);
-    if (len < 2) 
-        return 0; 
+    if (len < 2)
+        return 0;
     return strncmp(filename + len - 2, ".c", 2) == 0;
 }
-int is_bin_file(char* filename){
+int is_bin_file(char *filename)
+{
     size_t len = strlen(filename);
-    if (len < 4) 
-        return 0; 
+    if (len < 4)
+        return 0;
     return strncmp(filename + len - 4, ".bin", 4) == 0;
 }
 int get_file_length(const char *filepath)
@@ -86,4 +88,43 @@ void free_compressed_file(compressed_file *cf)
     free(cf->data);
     free(cf->filename);
     free(cf);
+}
+
+compressed_file **load_multiple_compressed_files(const char *input_directory, int *file_count)
+{
+    int num_files_in_dir = get_num_files_in_directory(input_directory);
+    *file_count = num_files_in_dir;
+    if (num_files_in_dir == 0)
+        return NULL;
+
+    compressed_file **cfiles = malloc(sizeof(compressed_file *) * num_files_in_dir);
+    char **filenames = malloc(num_files_in_dir * sizeof(char *));
+    for (int i = 0; i < num_files_in_dir; i++)
+    {
+        /* assuming 256 is max filename length */
+        filenames[i] = malloc(sizeof(char) * 256);
+    }
+
+    get_files_in_directory(input_directory, num_files_in_dir, filenames);
+
+    for (int i = 0; i < num_files_in_dir; i++)
+    {
+        char fullpath[1024];
+        /* Gets fullpath for each compressed file */
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", input_directory, filenames[i]);
+        cfiles[i] = load_compressed_file(fullpath);
+        free(filenames[i]);
+    }
+    free(filenames);
+
+    return cfiles;
+}
+
+void free_multiple_compressed_files(compressed_file **cfiles, int file_count)
+{
+    for (int i = 0; i < file_count; i++)
+    {
+        free_compressed_file(cfiles[i]);
+    }
+    free(cfiles);
 }

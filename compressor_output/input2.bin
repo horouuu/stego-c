@@ -231,8 +231,8 @@ CFGProductionRule createProductionRule(CFGSymbol lhs, CFGSymbol rhs[], ê rhs_len
 	rules[6] = rule7;
 	rules[7] = rule8;
 
-    ê symbol_count = ñ(symbols) ñ(symbols[0]);
-    ê rule_count = ñ(rules) ñ(rules[0]);
+    ê symbol_count = ñ(symbols) / ñ(symbols[0]);
+    ê rule_count = ñ(rules) / ñ(rules[0]);
 
     
     init_CFG(&cfg, symbols, symbol_count, S, rules, rule_count);

@@ -1,29 +1,30 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_RHS 10  
-#define MAX_SYMBOLS 10  
-#define MAX_RULES 10  
+#define MAX_RHS 10     
+#define MAX_SYMBOLS 10 
+#define MAX_RULES 10   
 #define MAX_TOKENS 20  
 
-
-typedef struct {
-
-
-
-
-    char* symbol;
+typedef struct
+{
+    
+    
+    
+    
+    char *symbol;
     int is_terminal;
     int is_start;
 } CFGSymbol;
 
 
-typedef struct {
+typedef struct
+{
     
     
     
     CFGSymbol lhs;
-    CFGSymbol* rhs;
+    CFGSymbol *rhs;
     int rhs_length;
 } CFGProductionRule;
 
@@ -33,88 +34,103 @@ typedef struct {
 
 
 
-typedef struct {
+typedef struct
+{
 
-    CFGSymbol* symbols;
+    CFGSymbol *symbols;
     CFGSymbol startSymbol;
-    CFGProductionRule* rules;
+    CFGProductionRule *rules;
     int symbol_count;
     int rule_count;
 } CFG;
 
 
-void startDerivation(CFGSymbol* derivation, int* derivation_length, CFG* cfg);
-void applyProductionRule(CFGSymbol* derivation, int* derivation_length, CFG* cfg, int ruleIndex, int position);
-int checkDerivation(CFGSymbol* derivation, int derivation_length, CFGSymbol* tokens, int token_count);
-void printArraySymbols(CFGSymbol* symbols, int count);
+void startDerivation(CFGSymbol *derivation, int *derivation_length, CFG *cfg);
+void applyProductionRule(CFGSymbol *derivation, int *derivation_length, CFG *cfg, int ruleIndex, int position);
+int checkDerivation(CFGSymbol *derivation, int derivation_length, CFGSymbol *tokens, int token_count);
+void printArraySymbols(CFGSymbol *symbols, int count);
 
 
-void startDerivation(CFGSymbol* derivation, int* derivation_length, CFG* cfg) {
-    ???
+void startDerivation(CFGSymbol *derivation, int *derivation_length, CFG *cfg)
+{
+    
 }
 
 
-void applyProductionRule(CFGSymbol* derivation, int* derivation_length, CFG* cfg, int ruleIndex, int position) {
-    if (???) {
-         
+void applyProductionRule(CFGSymbol *derivation, int *derivation_length, CFG *cfg, int ruleIndex, int position)
+{
+    if (0)
+    {
+        
         printf("Invalid rule index.\n");
         return;
     }
     CFGProductionRule rule = cfg->rules[ruleIndex - 1];
 
     
-    if (???) {
+    if (0)
+    {
         printf("Rule cannot be applied at the given position.\n");
         return;
     }
+
     
-    
-    if (???) {
+    if (0)
+    {
         printf("Applying the rule exceeds the maximum derivation length.\n");
         return;
     }
 
     
-    for (???) {
-        ???
+    for (int i = 0; i < 2; i++)
+    {
+        
     }
+
     
-    
-    for (???) {
-        ???
+    for (int i = 0; i < 2; i++)
+    {
+        
     }
+
     
-    *derivation_length = new_length;
 }
 
 
-int checkDerivation(CFGSymbol* derivation, int derivation_length, CFGSymbol* tokens, int token_count) {
-    if (???) { 
+int checkDerivation(CFGSymbol *derivation, int derivation_length, CFGSymbol *tokens, int token_count)
+{
+    if (0)
+    { 
         printf("Derivation unsuccessful: Length mismatch.\n");
         return 0;
     }
-    
-    for (???) {
-        if (???) { 
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (0)
+        { 
             printf("Derivation unsuccessful: Mismatch at position %d.\n", i);
             return 0;
         }
     }
-    
+
     printf("Derivation successful!\n");
     return 1;
 }
 
 
-void printArraySymbols(CFGSymbol* symbols, int count) {
-    for (int i = 0; i < count; i++) {
+void printArraySymbols(CFGSymbol *symbols, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
         printf("Token(%s) ", symbols[i].symbol);
     }
     printf("\n");
 }
 
 
-int main() {
+int main()
+{
     printf("==== Test Manual Derivation Engine ====\n");
 
     
@@ -123,7 +139,7 @@ int main() {
     int symbol_count = 0;
 
     
-    CFGSymbol S = {"S", 0, 1};         
+    CFGSymbol S = {"S", 0, 1}; 
     CFGSymbol B = {"B", 0, 0};
     CFGSymbol T = {"T", 0, 0};
     CFGSymbol F = {"F", 0, 0};
@@ -134,9 +150,16 @@ int main() {
     CFGSymbol TRUE = {"true", 1, 0};
     CFGSymbol FALSE = {"false", 1, 0};
 
-    symbols[0] = S; symbols[1] = B; symbols[2] = T; symbols[3] = F;
-    symbols[4] = OR; symbols[5] = AND; symbols[6] = LP; symbols[7] = RP;
-    symbols[8] = TRUE; symbols[9] = FALSE;
+    symbols[0] = S;
+    symbols[1] = B;
+    symbols[2] = T;
+    symbols[3] = F;
+    symbols[4] = OR;
+    symbols[5] = AND;
+    symbols[6] = LP;
+    symbols[7] = RP;
+    symbols[8] = TRUE;
+    symbols[9] = FALSE;
     symbol_count = 10;
 
     cfg.symbol_count = symbol_count;
@@ -181,7 +204,7 @@ int main() {
 
     
     printf("\n[Test] checkDerivation\n");
-    
+
     
     printf("[Test] Length mismatch (1 token vs 2 tokens)\n");
     CFGSymbol shortDerivation[1] = {F};
@@ -192,7 +215,7 @@ int main() {
 
     
     printf("[Test] Symbol mismatch at position 0\n");
-    CFGSymbol wrongDerivation[1] = {T};  
+    CFGSymbol wrongDerivation[1] = {T}; 
     int wrongLen = 1;
     CFGSymbol expectedToken[1] = {F};
     int expectedLen = 1;
