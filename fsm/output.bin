@@ -1,0 +1,10 @@
+#include <stdio.h>
+
+ê main() {
+    
+    printf("Hello, world!\n");
+     ê i;
+    ê j;
+    
+    ì 0;
+}
