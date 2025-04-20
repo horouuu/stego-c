@@ -2,3 +2,4 @@
 *.exe
 *.png
 *.out
+/steganography/test
