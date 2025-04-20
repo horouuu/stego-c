@@ -157,22 +157,31 @@ void run_fsm(const unsigned char *input, FILE *out)
 
 int compress_and_save(char *input_filepath, char *input_filename, const char *output_directory)
 {
-    size_t input_filename_len = strlen(input_filename);
-    char* output_filename = convert_c_or_h_to_bin(input_filename);
-    if(output_filename == NULL){
+    char *output_filename = NULL;
+    char *output_filepath = NULL;
+    int file_len;
+    unsigned char *compressor_input_buffer = NULL;
+    FILE *out = NULL;
+
+    output_filename = convert_c_or_h_to_bin(input_filename);
+    if (output_filename == NULL)
+    {
         perror("Error: Incorrect input filename format, filename must have format filename.h or filename.c, ending compression");
         return 0;
     }
-    char* output_filepath = build_filepath(output_directory, output_filename);
+
+    output_filepath = build_filepath(output_directory, output_filename);
     printf("output_filepath %s\n", output_filepath);
-    int file_len = get_file_length(input_filepath);
-    unsigned char *compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
+
+    file_len = get_file_length(input_filepath);
+    compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
+
     printf("====starting compression===\n");
     printf("number of chars in input: %d\n", file_len);
 
     read_input_file(compressor_input_buffer, file_len, input_filepath);
 
-    FILE *out = fopen(output_filepath, "wb");
+    out = fopen(output_filepath, "wb");
     if (out == NULL)
     {
         perror("Error: Failed to open output file");
@@ -196,35 +205,47 @@ int compress_and_save(char *input_filepath, char *input_filename, const char *ou
 
 int compress_and_save_multiple(const char *input_directory, const char *output_directory)
 {
-    int num_files_in_dir = get_num_files_in_directory(input_directory);
+    int num_files_in_dir;
+    char **filenames = NULL;
+    char *input_filepath = NULL;
+    int i, j, k;
+
+    num_files_in_dir = get_num_files_in_directory(input_directory);
     printf("number of files in input directory: %d\n", num_files_in_dir);
-    char **filenames = malloc(num_files_in_dir * sizeof(char *));
-    for (int i = 0; i < num_files_in_dir; i++)
+    filenames = malloc(num_files_in_dir * sizeof(char *));
+
+    for (i = 0; i < num_files_in_dir; i++)
     {
         /* assuming 256 is max filename length */
         filenames[i] = malloc(sizeof(char) * 256);
     }
+
     get_files_in_directory(input_directory, num_files_in_dir, filenames);
-    for (int i = 0; i < num_files_in_dir; i++)
+
+    for (j = 0; j < num_files_in_dir; j++)
     {
-        if (!is_code_file(filenames[i]))
+        if (!is_code_file(filenames[j]))
         {
-            printf("[WARN] skipping input file: %s as it is not a c file\n", filenames[i]);
+            printf("[WARN] skipping input file: %s as it is not a c file\n", filenames[j]);
             continue;
         }
 
-        char* input_filepath = build_filepath(input_directory, filenames[i]);
+        input_filepath = build_filepath(input_directory, filenames[j]);
 
         printf("compressing file at input path: %s\n", input_filepath);
-        if(!compress_and_save(input_filepath, filenames[i], output_directory)){
+        if (!compress_and_save(input_filepath, filenames[j], output_directory))
+        {
             printf("Error: failed to compress file: %s", input_filepath);
         }
         free(input_filepath);
     }
-    for(int i = 0 ; i < num_files_in_dir ; i ++){
-        // assuming 256 is max filename length
-        free(filenames[i]);
+
+    for (k = 0; k < num_files_in_dir; k++)
+    {
+        /* assuming 256 is max filename length */
+        free(filenames[k]);
     }
+
     free(filenames);
     return 0;
 }
