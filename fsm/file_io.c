@@ -33,6 +33,9 @@ char* get_original_filename_from_bin(char* bin_filename)
     /*input format original_filename_c.bin or original_filename_h.bin
     * output format original_filename
     */
+    if(strlen(bin_filename) - strlen("_c.bin") <= 0){
+        return NULL;
+    }
     char* original_filename = (char*) malloc(256*sizeof(char));
     /* get filename len after removing _c.bin from bin_filename */
     int original_filename_len = strlen(bin_filename) - strlen("_c.bin");
@@ -43,6 +46,9 @@ char* get_original_filename_from_c_or_h(char* c_or_h_filename){
     /*input format original_filename.c or original_filename.h
     * output format original_filename
     */
+    if(strlen(c_or_h_filename) - strlen(".c") <= 0){
+        return NULL;
+    }
    char* original_filename = (char*) malloc(256*sizeof(char));
    /* get filename len after removing _c.bin from bin_filename */
    int original_filename_len = strlen(c_or_h_filename) - strlen(".c");
