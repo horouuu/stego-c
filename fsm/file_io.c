@@ -3,131 +3,118 @@
 #include <string.h>
 #include "file_io.h"
 #include "directory_parser.h"
-#include "string.h"
 
 char* build_filepath(const char *directory, char* filename)
 {
-    /* input: directory, filename
-    output: "directory/filename"
-    */
-    char* filepath = (char*)malloc(256 * sizeof(char));
+    char* filepath = (char*)calloc(256, sizeof(char));
     strcpy(filepath, directory);
     strcat(filepath, "/");
     strcat(filepath, filename);
     return filepath;
 }
+
 int filename_has_ending(char *filename, const char *ending)
 {
     size_t len = strlen(filename);
     size_t end_len = strlen(ending);
-    if (len < 2)
+    if (len <= end_len)
         return 0;
     return strncmp(filename + len - end_len, ending, end_len) == 0;
 }
+
 int is_code_file(char *filename)
 {
     return filename_has_ending(filename, ".c") || filename_has_ending(filename, ".h");
 }
+
 char* get_original_filename_from_bin(char* bin_filename)
 {
-    /*input format original_filename_c.bin or original_filename_h.bin
-    * output format original_filename
-    */
-    char* original_filename = (char*) malloc(256*sizeof(char));
-    /* get filename len after removing _c.bin from bin_filename */
-    int original_filename_len = strlen(bin_filename) - strlen("_c.bin");
+    size_t suffix_len = strlen("_c.bin");
+    size_t len = strlen(bin_filename);
+    if (len <= suffix_len) 
+        return NULL;
+
+    char* original_filename = (char*)calloc(256, sizeof(char));
+    int original_filename_len = len - suffix_len;
     strncpy(original_filename, bin_filename, original_filename_len);
+    original_filename[original_filename_len] = '\0';
     return original_filename;
 }
-char* get_original_filename_from_c_or_h(char* c_or_h_filename){
-    /*input format original_filename.c or original_filename.h
-    * output format original_filename
-    */
-   char* original_filename = (char*) malloc(256*sizeof(char));
-   /* get filename len after removing _c.bin from bin_filename */
-   int original_filename_len = strlen(c_or_h_filename) - strlen(".c");
-   strncpy(original_filename, c_or_h_filename, original_filename_len);
-   return original_filename;
+
+char* get_original_filename_from_c_or_h(char* c_or_h_filename)
+{
+    size_t suffix_len = strlen(".c");
+    size_t len = strlen(c_or_h_filename);
+    if (len <= suffix_len) 
+        return NULL;
+
+    char* original_filename = (char*)calloc(256, sizeof(char));
+    int original_filename_len = len - suffix_len;
+    strncpy(original_filename, c_or_h_filename, original_filename_len);
+    original_filename[original_filename_len] = '\0';
+    return original_filename;
 }
+
 char* convert_bin_to_c_or_h(char* bin_filename)
 {
     /*input format: filename_c.bin or filename_h.bin
     output format: filename.c or filename.h
     */
     if(filename_has_ending(bin_filename, "_c.bin")){
-        char* c_filename = convert_bin_to_c(bin_filename);
-        return c_filename;
+        return convert_bin_to_c(bin_filename);
     } else if(filename_has_ending(bin_filename, "_h.bin")){
-        char* h_filename = convert_bin_to_h(bin_filename);
-        return h_filename;
+        return convert_bin_to_h(bin_filename);
     }
     return NULL;
 }
+
 char* convert_bin_to_c(char* bin_filename)
 {
-    /*input format: filename_c.bin
-    * output format: filename.c
-    */
-    /* get filename*/
     char* filename = get_original_filename_from_bin(bin_filename);
-    /* concatenate ".c" to filename*/
+    if (!filename) return NULL;
     strcat(filename, ".c");
     return filename;
 }
+
 char* convert_bin_to_h(char* bin_filename)
 {
-    /*input format filename_h.bin
-    * output format filename.h
-    */
-    /* get filename*/
     char* filename = get_original_filename_from_bin(bin_filename);
-    /* concatenate ".h" to filename*/
+    if (!filename) 
+        return NULL;
     strcat(filename, ".h");
     return filename;
 }
+
 char* convert_c_or_h_to_bin(char* c_or_h_filename)
 {
-    /*input format: filename.h or filename.c
-    output format: filename_h.bin or filename_c.bin
-    */
-    if(filename_has_ending(c_or_h_filename, ".c")){
+    if (filename_has_ending(c_or_h_filename, ".c")) {
         char* filename = get_original_filename_from_c_or_h(c_or_h_filename);
-        /* concatenate "_c.bin" to filename*/
         strcat(filename, "_c.bin");
         return filename;
-    } else if(filename_has_ending(c_or_h_filename, ".h")){
+    } else if (filename_has_ending(c_or_h_filename, ".h")) {
         char* filename = get_original_filename_from_c_or_h(c_or_h_filename);
-        /* concatenate "_c.bin" to filename*/
         strcat(filename, "_h.bin");
         return filename;
     }
     return NULL;
 }
+
 char* convert_c_to_bin(char* c_filename)
 {
-    /*input format filename.c
-    * output format filename_c.bin
-    */
-   /* get filename*/
     char* filename = get_original_filename_from_c_or_h(c_filename);
-    /* concatenate "_c.bin" to filename*/
     strcat(filename, "_c.bin");
     return filename;
 }
+
 char* convert_h_to_bin(char* h_filename)
 {
-    /*input format filename.h
-    * output format filename_h.bin
-    */
-   /* get filename*/
     char* filename = get_original_filename_from_c_or_h(h_filename);
-    /* concatenate "_h.bin" to filename*/
     strcat(filename, "_h.bin");
     return filename;
 }
+
 int get_file_length(const char *filepath)
 {
-
     FILE *fp = fopen(filepath, "rb");
     if (fp == NULL)
     {
@@ -143,8 +130,7 @@ int get_file_length(const char *filepath)
 
 int read_input_file(unsigned char *buffer, int file_len, const char *filepath)
 {
-    FILE *fp = NULL;
-    fp = fopen(filepath, "rb");
+    FILE *fp = fopen(filepath, "rb");
     if (fp == NULL)
     {
         perror("Error: ");
@@ -153,12 +139,9 @@ int read_input_file(unsigned char *buffer, int file_len, const char *filepath)
     fread(buffer, 1, file_len, fp);
     buffer[file_len] = '\0';
     fclose(fp);
-    fp = NULL;
-
     return 0;
 }
 
-/* Writes the ASCII value of the character*/
 void write_raw_byte(FILE *out, unsigned char ch)
 {
     fputc((char)ch, out);
