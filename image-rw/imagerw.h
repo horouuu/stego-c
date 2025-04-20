@@ -58,4 +58,12 @@ unsigned char get_image_col_byte(int pos, ImageData *image);
  */
 int set_image_col_byte(int pos, ImageData *image, unsigned char value);
 
+/**
+ * Cleans up and frees the image data buffer.
+ * This function should be called when the image is no longer needed.
+ *
+ * @param[in] image The image data structure containing the image information.
+ */
+void cleanup_free_buffer(ImageData *image);
+
 #endif // IMAGERW_H

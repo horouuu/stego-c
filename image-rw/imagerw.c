@@ -28,3 +28,10 @@ int set_image_col_byte(int pos, ImageData *image, unsigned char value) {
   image->data[pos] = value;
   return 1;
 }
+
+void cleanup_free_buffer(ImageData *image) {
+  if (image->data) {
+    stbi_image_free(image->data);
+    image->data = NULL;
+  }
+}
