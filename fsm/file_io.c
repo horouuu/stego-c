@@ -142,7 +142,7 @@ int read_input_file(unsigned char *buffer, int file_len, const char *filepath)
         return -1;
     }
     fread(buffer, 1, file_len, fp);
-    buffer[file_len-1] = '\0';
+    buffer[file_len] = '\0';
     fclose(fp);
     return 0;
 }
