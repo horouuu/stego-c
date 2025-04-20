@@ -34,6 +34,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
     if (true_start_pos == -1)
     {
         printf("Error. Invalid start position.\n");
+        cleanup_free_buffer(image_data);
         return -1;
     }
 
@@ -136,6 +137,13 @@ int encode_data(const unsigned char *data, int data_size_bits, const char *data_
     unsigned long pos = true_start_pos;
     load_image(image_file_name, &image_data);
     pos = encode_header(1, strlen(data_file_name), data_file_name, data_size_bits, &image_data, pos);
+    if (pos == -1)
+    {
+        cleanup_free_buffer(&image_data);
+        printf("Failed to encode header.");
+        return -1;
+    }
+
     write_encoding_bytes(data, data_size_bits, &image_data, pos);
 
     save_image(output_file_name, &image_data);
@@ -249,6 +257,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
 int decode_image(const char *input_img_name, unsigned char *output)
 {
     ImageData image_data;
+    unsigned char read_bit;
     load_image(input_img_name, &image_data);
     HeaderData d = decode_header(&image_data, 0);
     unsigned long pos = d.data_offset;
@@ -256,7 +265,6 @@ int decode_image(const char *input_img_name, unsigned char *output)
 
     int bit_sig = 0;
     int max_img_idx = image_data.width * image_data.height - 1;
-    unsigned char read_bit;
     unsigned char read_buffer = 0;
     unsigned char *data_buffer = malloc((d.file_size_bytes + 1) * sizeof(char));
     int bit_counter = 0;
@@ -290,7 +298,14 @@ int main()
     free_compressed_file(c);
 
     unsigned char *output = malloc(((c->data_bits / 8) + 1) * sizeof(char));
+    output[c->data_bits / 8] = '\0';
     decode_image("./test/test.png", output);
+
+    while (*output && output != '\0')
+    {
+        printf("%c", *output);
+        output++;
+    }
 
     free(output);
 }
