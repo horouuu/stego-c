@@ -78,14 +78,12 @@ int decompress_and_save_multiple(const char* input_directory, const char* output
             continue;
         }
 
-        char full_input_path[256] = "";
-        strcat(full_input_path, input_directory);
-        strcat(full_input_path, "/");
-        strcat(full_input_path, filenames[i]);
-        printf("compressing file at input path: %s\n", full_input_path);
-        if(!decompress_and_save(full_input_path, filenames[i], output_directory)){
-            printf("Error: failed to decompress file: %s", full_input_path);
+        char* input_filepath = build_filepath(input_directory, filenames[i]);
+        printf("compressing file at input path: %s\n", input_filepath);
+        if(!decompress_and_save(input_filepath, filenames[i], output_directory)){
+            printf("Error: failed to decompress file: %s", input_filepath);
         }
+        free(input_filepath);
     }
     for(int i = 0 ; i < num_files_in_dir ; i ++){
         // assuming 256 is max filename length
