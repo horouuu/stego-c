@@ -11,3 +11,6 @@
 ### Steganography
 
 ### Decoding
+
+## Credits
+
