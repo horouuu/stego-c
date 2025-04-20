@@ -1,18 +1,13 @@
 #include "compressor.h"
 #include "keyword_map.h"
 #include "file_io.h"
+#include "directory_parser.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-
+#include <string.h>
 #define MAX_INPUT_LENGTH 1000
 #define MAX_TOKEN 64
-
-// /* Writes the ASCII value of the character*/
-// void write_raw_byte(FILE *out, unsigned char ch)
-// {
-//     fputc(ch, out);
-// }
 
 void run_fsm(const unsigned char *input, FILE *out)
 {
@@ -40,7 +35,7 @@ void run_fsm(const unsigned char *input, FILE *out)
             }
             else if ((unsigned char)curr_char <= 127)
             {
-                // write out any characters with ASCII code <= 127
+                /* write out any characters with ASCII code <= 127 */
                 write_raw_byte(out, curr_char);
             }
             else
@@ -66,7 +61,7 @@ void run_fsm(const unsigned char *input, FILE *out)
             else
             {
                 token[token_len] = '\0';
-                i--; // reprocess later
+                i--; /* reprocess later */
                 state = KEYWORD_CHECK;
             }
             break;
@@ -81,11 +76,19 @@ void run_fsm(const unsigned char *input, FILE *out)
             }
             else
             {
+                /* write out / and current char */
+                write_raw_byte(out, input[i - 2]);
+                if ((unsigned char)curr_char <= 127)
+                    write_raw_byte(out, curr_char);
                 state = START;
             }
             break;
         case SINGLE_LINE_COMMENT:
-            if (curr_char == '\n')
+            if (curr_char == '\r' && input[i] == '\n')
+            {
+                write_raw_byte(out, curr_char);
+            }
+            else if (curr_char == '\n')
             {
                 write_raw_byte(out, curr_char);
                 state = END_COMMENT;
@@ -112,7 +115,7 @@ void run_fsm(const unsigned char *input, FILE *out)
             }
             break;
         case END_COMMENT:
-            // isalpha takes precedence
+            /* isalpha takes precedence */
             if (isalpha(curr_char))
             {
                 if (token_len < MAX_TOKEN - 1)
@@ -124,14 +127,11 @@ void run_fsm(const unsigned char *input, FILE *out)
             {
                 state = DIV_OR_COMMENT;
             }
-            else if ((unsigned char)curr_char <= 127)
-            {
-                // write out any characters with ASCII code <= 127
-                write_raw_byte(out, curr_char);
-                state = START;
-            }
             else
             {
+                /* write out any characters with ASCII code <= 127 */
+                if ((unsigned char)curr_char <= 127)
+                    write_raw_byte(out, curr_char);
                 state = START;
             }
             break;
@@ -148,33 +148,104 @@ void run_fsm(const unsigned char *input, FILE *out)
                 }
             }
             token_len = 0;
-            i--; // reprocess later
+            i--; /* reprocess later */
             state = START;
             break;
         }
     }
 }
 
-// int main()
-// {
-//     int file_len = get_file_length("input.txt");
-//     char *input_buffer = (char *)malloc(file_len * sizeof(char));
+int compress_and_save(char *input_filepath, char *input_filename, const char *output_directory)
+{
+    char *output_filename = NULL;
+    char *output_filepath = NULL;
+    int file_len;
+    unsigned char *compressor_input_buffer = NULL;
+    FILE *out = NULL;
 
-//     read_input_file(input_buffer, file_len, "input.txt");
-//     printf("buffer:\n %s\n", input_buffer);
+    output_filename = convert_c_or_h_to_bin(input_filename);
+    if (output_filename == NULL)
+    {
+        perror("Error: Incorrect input filename format, filename must have format filename.h or filename.c, ending compression");
+        return 0;
+    }
 
-//     const char *input = "int hello;";
+    output_filepath = build_filepath(output_directory, output_filename);
+    printf("output_filepath %s\n", output_filepath);
 
-//     FILE *out = fopen("output.bin", "wb");
-//     if (out == NULL)
-//     {
-//         perror("Failed to open output file");
-//         return 1;
-//     }
+    file_len = get_file_length(input_filepath);
+    compressor_input_buffer = (unsigned char *)malloc((file_len + 1) * sizeof(unsigned char));
 
-//     run_fsm(input_buffer, out);
-//     fclose(out);
+    printf("====starting compression===\n");
+    printf("number of chars in input: %d\n", file_len);
 
-//     printf("FSM run complete. Output written to output.bin\n");
-//     return 0;
-// }
+    read_input_file(compressor_input_buffer, file_len, input_filepath);
+
+    out = fopen(output_filepath, "wb");
+    if (out == NULL)
+    {
+        perror("Error: Failed to open output file");
+        free(compressor_input_buffer);
+        return 0;
+    }
+
+    printf("Running FSM...\n");
+    run_fsm(compressor_input_buffer, out);
+
+    printf("Compressor FSM run complete. Output written to %s\n", output_filepath);
+    printf("====end compression===\n\n");
+
+    fclose(out);
+    free(compressor_input_buffer);
+    free(output_filepath);
+    free(output_filename);
+
+    return 1;
+}
+
+int compress_and_save_multiple(const char *input_directory, const char *output_directory)
+{
+    int num_files_in_dir;
+    char **filenames = NULL;
+    char *input_filepath = NULL;
+    int i, j, k;
+
+    num_files_in_dir = get_num_files_in_directory(input_directory);
+    printf("number of files in input directory: %d\n", num_files_in_dir);
+    filenames = malloc(num_files_in_dir * sizeof(char *));
+
+    for (i = 0; i < num_files_in_dir; i++)
+    {
+        /* assuming 256 is max filename length */
+        filenames[i] = malloc(sizeof(char) * 256);
+    }
+
+    get_files_in_directory(input_directory, num_files_in_dir, filenames);
+
+    for (j = 0; j < num_files_in_dir; j++)
+    {
+        if (!is_code_file(filenames[j]))
+        {
+            printf("[WARN] skipping input file: %s as it is not a c file\n", filenames[j]);
+            continue;
+        }
+
+        input_filepath = build_filepath(input_directory, filenames[j]);
+
+        printf("compressing file at input path: %s\n", input_filepath);
+        if (!compress_and_save(input_filepath, filenames[j], output_directory))
+        {
+            printf("Error: failed to compress file: %s", input_filepath);
+        }
+        free(input_filepath);
+    }
+
+    for (k = 0; k < num_files_in_dir; k++)
+    {
+        /* assuming 256 is max filename length */
+        free(filenames[k]);
+    }
+
+    free(filenames);
+    return 0;
+}

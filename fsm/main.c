@@ -1,72 +1,41 @@
 #include "file_io.h"
 #include "decompressor.h"
 #include "compressor.h"
+#include "directory_parser.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
 
-int main()
+int main(void)
 {
+    int file_count = 0;
+    const char *compressor_input_directory = "../compressor_input";
+    const char *compressor_output_directory = "../compressor_output";
+    const char *decompressor_output_directory = "../decompressor_output";
+    compressed_file **cfiles = NULL;
+    int i, j;
 
-    // // compressor
-    char *compressor_input_filename = "input.txt";
-    char *compressor_output_filename = "output.bin";
-    int file_len = get_file_length(compressor_input_filename);
-    unsigned char *compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
-    printf("====starting compression===\n");
-    printf("number of chars in input: %d\n", file_len);
+    compress_and_save_multiple(compressor_input_directory, compressor_output_directory);
+    decompress_and_save_multiple(compressor_output_directory, decompressor_output_directory);
 
-    read_input_file(compressor_input_buffer, file_len, compressor_input_filename);
-
-    FILE *out = fopen(compressor_output_filename, "wb");
-    if (out == NULL)
+    cfiles = load_multiple_compressed_files(compressor_output_directory, &file_count);
+    if (cfiles)
     {
-        perror("Failed to open output file");
-        return 1;
-    }
-
-    run_fsm(compressor_input_buffer, out);
-    fclose(out);
-
-    printf("Compressor FSM run complete. Output written to output.bin\n");
-    printf("====end compression===\n\n");
-
-    compressed_file *cf = load_compressed_file(compressor_output_filename);
-    if (cf)
-    {
-        printf("Filename: %s\n", cf->filename);
-        printf("File size: %d bits\n", cf->data_bits);
-        printf("Bytes: ");
-        for (int i = 0; i < cf->data_bits / 8; i++)
+        for (i = 0; i < file_count; i++)
         {
-            printf("%02X ", cf->data[i]);
+            compressed_file *cf = cfiles[i];
+            printf("Filename: %s\n", cf->filename);
+            printf("File size: %d bits\n", cf->data_bits);
+            printf("Bytes: ");
+            for (j = 0; j < cf->data_bits / 8; j++)
+            {
+                printf("%02X ", cf->data[j]);
+            }
+            printf("\n");
         }
-        printf("\n");
 
-        free_compressed_file(cf);
+        free_multiple_compressed_files(cfiles, file_count);
     }
-
-    printf("====starting decompression===\n");
-
-    // decompressor
-    char *decompressor_output_filename = "decompressed_input.txt";
-    int decompressor_input_file_len = get_file_length(compressor_output_filename);
-    unsigned char *decompressor_input_buffer = (unsigned char *)malloc(decompressor_input_file_len * sizeof(unsigned char));
-
-    read_input_file(decompressor_input_buffer, decompressor_input_file_len, compressor_output_filename);
-
-    FILE *decompressor_out = fopen(decompressor_output_filename, "wb");
-    if (decompressor_out == NULL)
-    {
-        perror("Failed to open output file");
-        return 1;
-    }
-
-    run_decompressor(decompressor_input_buffer, decompressor_out);
-    fclose(decompressor_out);
-
-    printf("Decompressor run complete. Output written to decompressed_input.txt\n");
-    printf("====end decompression===\n");
 
     return 0;
 }

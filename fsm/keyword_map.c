@@ -58,13 +58,13 @@ int is_keyword(const char *token, unsigned char *output_byte)
 }
 int is_compressed_keyword(unsigned char byte, char* output_keyword)
 {
-    int i;
+    size_t i, keyword_len;
     for (i = 0; i < NUM_KEYWORDS; i++)
     {
         if (byte == keyword_table[i].byte)
         {
             strcpy(output_keyword, keyword_table[i].keyword);
-            size_t keyword_len = strlen(keyword_table[i].keyword);
+            keyword_len = strlen(keyword_table[i].keyword);
             output_keyword[keyword_len] = '\0';
             return 1;
         }
