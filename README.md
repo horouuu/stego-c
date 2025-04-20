@@ -20,3 +20,6 @@ Each file within this directory will be a `.c` file.
 ### Steganography
 
 ### Decoding
+
+## Credits
+
