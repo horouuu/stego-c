@@ -4,7 +4,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_FAILURE_STRINGS
 #define STBI_FAILURE_USERMSG
+#define STBI_NO_HDR
 #include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 #include <stdio.h>
 
@@ -19,6 +23,8 @@ typedef struct {
  * Loads an image from a file and returns an ImageData structure containing the image information.
  * The function returns NULL if the image could not be loaded.
  *
+ * The function supports PNG, JPG/JPEG, BMP, PSD, TGA, GIF, PIC, PNM (.ppm and .pgm) formats based on the file extension. 
+ *
  * @param[in] filename The name of the image file to load.
  * @param[out] image A pointer to an ImageData structure that will be filled with the image information.
  * @return 1 if the image was loaded successfully, 0 otherwise.
@@ -28,6 +34,8 @@ int load_image(const char *filename, ImageData *image);
 /**
  * Saves an image to a file using the specified format.
  * The function returns true if the image was saved successfully, false otherwise.
+ *
+ * The function supports PNG, JPG/JPEG, BMP formats based on the file extension.
  *
  * @param[in] filename The name of the file to save the image to.
  * @param[in] image The image data structure containing the image information.
