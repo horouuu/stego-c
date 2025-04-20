@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-int main()
+int main(void)
 {
     int file_count = 0;
     const char *compressor_input_directory = "../compressor_input";

@@ -31,11 +31,13 @@ char* get_original_filename_from_bin(char* bin_filename)
 {
     size_t suffix_len = strlen("_c.bin");
     size_t len = strlen(bin_filename);
+    char* original_filename = NULL;
+    int original_filename_len;
     if (len <= suffix_len) 
         return NULL;
 
-    char* original_filename = (char*)calloc(256, sizeof(char));
-    int original_filename_len = len - suffix_len;
+    original_filename = (char*)calloc(256, sizeof(char));
+    original_filename_len = len - suffix_len;
     strncpy(original_filename, bin_filename, original_filename_len);
     original_filename[original_filename_len] = '\0';
     return original_filename;
@@ -45,11 +47,13 @@ char* get_original_filename_from_c_or_h(char* c_or_h_filename)
 {
     size_t suffix_len = strlen(".c");
     size_t len = strlen(c_or_h_filename);
+    char* original_filename;
+    int original_filename_len;
     if (len <= suffix_len) 
         return NULL;
 
-    char* original_filename = (char*)calloc(256, sizeof(char));
-    int original_filename_len = len - suffix_len;
+    original_filename = (char*)calloc(256, sizeof(char));
+    original_filename_len = len - suffix_len;
     strncpy(original_filename, c_or_h_filename, original_filename_len);
     original_filename[original_filename_len] = '\0';
     return original_filename;
@@ -116,6 +120,7 @@ char* convert_h_to_bin(char* h_filename)
 int get_file_length(const char *filepath)
 {
     FILE *fp = fopen(filepath, "rb");
+    int file_len;
     if (fp == NULL)
     {
         perror("Error: ");
@@ -123,7 +128,7 @@ int get_file_length(const char *filepath)
     }
 
     fseek(fp, 0, SEEK_END);
-    int file_len = ftell(fp);
+    file_len = ftell(fp);
     fclose(fp);
     return file_len;
 }
@@ -150,6 +155,8 @@ void write_raw_byte(FILE *out, unsigned char ch)
 compressed_file *load_compressed_file(const char *filepath)
 {
     FILE *fp = fopen(filepath, "rb");
+    long filesize;
+    compressed_file *cf = NULL;
     if (fp == NULL)
     {
         perror("Error: Failed to open file");
@@ -157,10 +164,10 @@ compressed_file *load_compressed_file(const char *filepath)
     }
 
     fseek(fp, 0, SEEK_END);
-    long filesize = ftell(fp);
+    filesize = ftell(fp);
     rewind(fp);
 
-    compressed_file *cf = (compressed_file *)malloc(sizeof(compressed_file));
+    cf = (compressed_file *)malloc(sizeof(compressed_file));
     cf->data = (unsigned char *)malloc(filesize);
     cf->data_bits = (int)(filesize * 8);
     cf->filename = strdup(filepath);
@@ -181,13 +188,17 @@ void free_compressed_file(compressed_file *cf)
 compressed_file **load_multiple_compressed_files(const char *input_directory, int *file_count)
 {
     int num_files_in_dir = get_num_files_in_directory(input_directory);
+    size_t i;
+    compressed_file **cfiles = NULL;
+    char **filenames = NULL;
+    char fullpath[1024];
     *file_count = num_files_in_dir;
     if (num_files_in_dir == 0)
         return NULL;
 
-    compressed_file **cfiles = malloc(sizeof(compressed_file *) * num_files_in_dir);
-    char **filenames = malloc(num_files_in_dir * sizeof(char *));
-    for (int i = 0; i < num_files_in_dir; i++)
+    cfiles = malloc(sizeof(compressed_file *) * num_files_in_dir);
+    filenames = malloc(num_files_in_dir * sizeof(char *));
+    for (i = 0; i < num_files_in_dir; i++)
     {
         /* assuming 256 is max filename length */
         filenames[i] = malloc(sizeof(char) * 256);
@@ -195,9 +206,8 @@ compressed_file **load_multiple_compressed_files(const char *input_directory, in
 
     get_files_in_directory(input_directory, num_files_in_dir, filenames);
 
-    for (int i = 0; i < num_files_in_dir; i++)
+    for (i = 0; i < num_files_in_dir; i++)
     {
-        char fullpath[1024];
         /* Gets fullpath for each compressed file */
         snprintf(fullpath, sizeof(fullpath), "%s/%s", input_directory, filenames[i]);
         cfiles[i] = load_compressed_file(fullpath);
@@ -210,7 +220,8 @@ compressed_file **load_multiple_compressed_files(const char *input_directory, in
 
 void free_multiple_compressed_files(compressed_file **cfiles, int file_count)
 {
-    for (int i = 0; i < file_count; i++)
+    size_t i;
+    for (i = 0; i < file_count; i++)
     {
         free_compressed_file(cfiles[i]);
     }

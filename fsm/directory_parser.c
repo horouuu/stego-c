@@ -6,12 +6,13 @@ int get_num_files_in_directory(const char *directory_path)
 {
     struct dirent *entry;
     DIR *dir = opendir(directory_path);
+    int num_files = 0;
+
     if (dir == NULL)
     {
         perror("Error: could not open directory");
         return 1;
     }
-    int num_files = 0;
     while ((entry = readdir(dir)) != NULL)
     {
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
@@ -25,12 +26,12 @@ int get_files_in_directory(const char *directory_path, int num_files, char **fil
 {
     struct dirent *entry;
     DIR *dir = opendir(directory_path);
+    size_t i = 0;
     if (dir == NULL)
     {
         perror("Error: could not open directory");
         return 1;
     }
-    int i = 0;
     while ((entry = readdir(dir)) != NULL && i < num_files)
     {
         if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
