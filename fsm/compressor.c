@@ -174,7 +174,7 @@ int compress_and_save(char *input_filepath, char *input_filename, const char *ou
     printf("output_filepath %s\n", output_filepath);
 
     file_len = get_file_length(input_filepath);
-    compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
+    compressor_input_buffer = (unsigned char *)malloc((file_len + 1) * sizeof(unsigned char));
 
     printf("====starting compression===\n");
     printf("number of chars in input: %d\n", file_len);
