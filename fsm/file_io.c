@@ -20,7 +20,7 @@ int filename_has_ending(char *filename, const char *ending)
 {
     size_t len = strlen(filename);
     size_t end_len = strlen(ending);
-    if (len < 2)
+    if (len <= end_len)
         return 0;
     return strncmp(filename + len - end_len, ending, end_len) == 0;
 }
