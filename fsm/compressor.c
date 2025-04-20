@@ -158,15 +158,13 @@ void run_fsm(const unsigned char *input, FILE *out)
 int compress_and_save(char *input_filepath, char *input_filename, const char *output_directory)
 {
     size_t input_filename_len = strlen(input_filename);
-    char output_filepath[256] = "";
-    /* building output_filepath */
-    strcat(output_filepath, output_directory);
-    strcat(output_filepath, "/");
-    strcat(output_filepath, input_filename);
-    size_t output_filepath_len = strlen(output_filepath);
-    /* replace .c with .bin */
-    strcpy(output_filepath + output_filepath_len - 2, ".bin");
-
+    char* output_filename = convert_c_or_h_to_bin(input_filename);
+    if(output_filename == NULL){
+        perror("Error: Incorrect input filename format, filename must have format filename.h or filename.c, ending compression");
+        return 0;
+    }
+    char* output_filepath = build_filepath(output_directory, output_filename);
+    printf("output_filepath %s\n", output_filepath);
     int file_len = get_file_length(input_filepath);
     unsigned char *compressor_input_buffer = (unsigned char *)malloc(file_len * sizeof(unsigned char));
     printf("====starting compression===\n");
@@ -184,11 +182,14 @@ int compress_and_save(char *input_filepath, char *input_filename, const char *ou
 
     printf("Running FSM...\n");
     run_fsm(compressor_input_buffer, out);
-    fclose(out);
-    free(compressor_input_buffer);
 
     printf("Compressor FSM run complete. Output written to %s\n", output_filepath);
     printf("====end compression===\n\n");
+
+    fclose(out);
+    free(compressor_input_buffer);
+    free(output_filepath);
+
     return 1;
 }
 
@@ -205,7 +206,7 @@ int compress_and_save_multiple(const char *input_directory, const char *output_d
     get_files_in_directory(input_directory, num_files_in_dir, filenames);
     for (int i = 0; i < num_files_in_dir; i++)
     {
-        if (!is_c_file(filenames[i]))
+        if (!is_code_file(filenames[i]))
         {
             printf("[WARN] skipping input file: %s as it is not a c file\n", filenames[i]);
             continue;

@@ -29,15 +29,13 @@ void run_decompressor(const unsigned char *input, int file_len, FILE *out){
 int decompress_and_save(char* input_filepath, char* input_filename, const char* output_directory){
 
     printf("====starting decompression===\n");
-    size_t input_filename_len = strlen(input_filename);
-    char output_filepath[256] = "";
-    // building output_filepath
-    strcat(output_filepath, output_directory);
-    strcat(output_filepath, "/");
-    strncat(output_filepath, input_filename, input_filename_len - 2);
-    size_t output_filepath_len = strlen(output_filepath);
-    // replace .bin with .c
-    strcpy(output_filepath + output_filepath_len - 2 , ".c");
+
+    char* output_filename = convert_bin_to_c_or_h(input_filename);
+    if(output_filename == NULL){        
+        perror("Error: Incorrect input filename format, filename must have format filename_h.bin or filename_c.bin, ending decompression");
+        return 0;
+    }
+    char* output_filepath = build_filepath(output_directory, output_filename);
     // decompressor
     int decompressor_input_file_len = get_file_length(input_filepath);
     unsigned char *decompressor_input_buffer = (unsigned char *)malloc((decompressor_input_file_len + 1)* sizeof(unsigned char));
@@ -47,15 +45,19 @@ int decompress_and_save(char* input_filepath, char* input_filename, const char* 
     FILE *decompressor_out = fopen(output_filepath, "wb");
     if (decompressor_out == NULL)
     {
-        perror("Error: Failed to open output file");
+        perror("Error: Failed to open output file, ending decompression");
         return 0;
     }
 
     run_decompressor(decompressor_input_buffer, decompressor_input_file_len, decompressor_out);
-    fclose(decompressor_out);
 
-    printf("Decompressor run complete. Output written to decompressed_input.txt\n");
-    printf("====end decompression===\n");
+    printf("Decompressor run complete. Output written to %s\n", output_filepath);
+    printf("====end decompression===\n\n");
+
+    fclose(decompressor_out);
+    free(decompressor_input_buffer);
+    free(output_filepath);
+
     return 1;
 }
 
@@ -71,7 +73,7 @@ int decompress_and_save_multiple(const char* input_directory, const char* output
     }
     get_files_in_directory(input_directory, num_files_in_dir, filenames);
     for(int i = 0 ; i < num_files_in_dir ; i ++){
-        if(!is_bin_file(filenames[i])){
+        if(!filename_has_ending(filenames[i], ".bin")){
             printf("[WARN] decompressor skipping input file: %s as it is not a bin file\n", filenames[i]);
             continue;
         }
