@@ -189,6 +189,7 @@ int compress_and_save(char *input_filepath, char *input_filename, const char *ou
     fclose(out);
     free(compressor_input_buffer);
     free(output_filepath);
+    free(output_filename);
 
     return 1;
 }

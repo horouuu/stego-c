@@ -57,6 +57,7 @@ int decompress_and_save(char* input_filepath, char* input_filename, const char* 
     fclose(decompressor_out);
     free(decompressor_input_buffer);
     free(output_filepath);
+    free(output_filename);
 
     return 1;
 }
