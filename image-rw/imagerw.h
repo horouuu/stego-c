@@ -1,15 +1,6 @@
 #ifndef IMAGERW_H
 #define IMAGERW_H
 
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_NO_FAILURE_STRINGS
-#define STBI_FAILURE_USERMSG
-#define STBI_NO_HDR
-#include "stb_image.h"
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
 #include <stdio.h>
 
 typedef struct {
@@ -29,7 +20,7 @@ typedef struct {
  * @param[out] image A pointer to an ImageData structure that will be filled with the image information.
  * @return 1 if the image was loaded successfully, 0 otherwise.
  */
-int load_image(const char *filename, ImageData *image);
+extern int load_image(const char *filename, ImageData *image);
 
 /**
  * Saves an image to a file using the specified format.
@@ -41,7 +32,7 @@ int load_image(const char *filename, ImageData *image);
  * @param[in] image The image data structure containing the image information.
  * @return 1 if the image was saved successfully, 0 otherwise.
  */
-int save_image(const char *filename, ImageData *image);
+extern int save_image(const char *filename, const ImageData *image);
 
 /**
  * Gets the pixel color at the specified position in the image.
@@ -52,7 +43,7 @@ int save_image(const char *filename, ImageData *image);
  * @param[in] image The image data structure containing the image information.
  * @return The color value at the specified position in the image data array. Returns NULL if the position is out of bounds.
  */
-unsigned char get_image_col_byte(int pos, ImageData *image);
+extern unsigned char get_image_col_byte(int pos, const ImageData *image);
 
 /**
  * Sets the pixel color at the specified position in the image.
@@ -60,18 +51,18 @@ unsigned char get_image_col_byte(int pos, ImageData *image);
  * The function returns true if the operation was successful, false otherwise.
  * 
  * @param[in] pos The position in the image data array in linear index.
- * @param[in] image The image data structure containing the image information.
+ * @param[in,out] image The image data structure containing the image information.
  * @param[in] value The color value to set at the specified position in the image data array.
  * @return 1 if the operation was successful, 0 otherwise.
  */
-int set_image_col_byte(int pos, ImageData *image, unsigned char value);
+extern int set_image_col_byte(int pos, ImageData *image, unsigned char value);
 
 /**
  * Cleans up and frees the image data buffer.
  * This function should be called when the image is no longer needed.
  *
- * @param[in] image The image data structure containing the image information.
+ * @param[in,out] image The image data structure containing the image information.
  */
-void cleanup_free_buffer(ImageData *image);
+extern void cleanup_free_buffer(ImageData *image);
 
 #endif // IMAGERW_H

@@ -1,5 +1,14 @@
 #include "imagerw.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_FAILURE_STRINGS
+#define STBI_FAILURE_USERMSG
+#define STBI_NO_HDR
+#include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 int load_image(const char *filename, ImageData *image) {
   image->data =
       stbi_load(filename, &image->width, &image->height, &image->channels, 0);
@@ -10,7 +19,7 @@ int load_image(const char *filename, ImageData *image) {
   return 1;
 }
 
-int save_image(const char *filename, ImageData *image) {
+int save_image(const char *filename, const ImageData *image) {
   // Determine the file extension
   const char *str = strrchr(filename, '.');
   const char *ext = NULL;
@@ -44,9 +53,10 @@ int save_image(const char *filename, ImageData *image) {
     fprintf(stderr, "Error: Unsupported file format: %s\n", ext);
     return 0;
   }
+  return 1;
 }
 
-unsigned char get_image_col_byte(int pos, ImageData *image) {
+unsigned char get_image_col_byte(int pos, const ImageData *image) {
   if (pos < 0 || pos >= image->width * image->height * image->channels) {
     fprintf(stderr, "Error: Position out of bounds\n");
     return 0;
