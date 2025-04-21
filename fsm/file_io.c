@@ -152,11 +152,11 @@ void write_raw_byte(FILE *out, unsigned char ch)
     fputc((char)ch, out);
 }
 
-compressed_file *load_compressed_file(const char *filepath)
+FileData *load_file(const char *filepath)
 {
     FILE *fp = fopen(filepath, "rb");
     long filesize;
-    compressed_file *cf = NULL;
+    FileData *cf = NULL;
     if (fp == NULL)
     {
         perror("Error: Failed to open file");
@@ -167,7 +167,7 @@ compressed_file *load_compressed_file(const char *filepath)
     filesize = ftell(fp);
     rewind(fp);
 
-    cf = (compressed_file *)malloc(sizeof(compressed_file));
+    cf = (FileData *)malloc(sizeof(FileData));
     cf->data = (unsigned char *)malloc(filesize);
     cf->data_bits = (int)(filesize * 8);
     cf->filename = strdup(filepath);
@@ -178,25 +178,25 @@ compressed_file *load_compressed_file(const char *filepath)
     return cf;
 }
 
-void free_compressed_file(compressed_file *cf)
+void free_file_data(FileData *cf)
 {
     free(cf->data);
     free(cf->filename);
     free(cf);
 }
 
-compressed_file **load_multiple_compressed_files(const char *input_directory, int *file_count)
+FileData **load_multiple_file_data(const char *input_directory, int *file_count)
 {
     int num_files_in_dir = get_num_files_in_directory(input_directory);
     size_t i;
-    compressed_file **cfiles = NULL;
+    FileData **cfiles = NULL;
     char **filenames = NULL;
     char fullpath[1024];
     *file_count = num_files_in_dir;
     if (num_files_in_dir == 0)
         return NULL;
 
-    cfiles = malloc(sizeof(compressed_file *) * num_files_in_dir);
+    cfiles = malloc(sizeof(FileData *) * num_files_in_dir);
     filenames = malloc(num_files_in_dir * sizeof(char *));
     for (i = 0; i < num_files_in_dir; i++)
     {
@@ -210,7 +210,7 @@ compressed_file **load_multiple_compressed_files(const char *input_directory, in
     {
         /* Gets fullpath for each compressed file */
         snprintf(fullpath, sizeof(fullpath), "%s/%s", input_directory, filenames[i]);
-        cfiles[i] = load_compressed_file(fullpath);
+        cfiles[i] = load_file(fullpath);
         free(filenames[i]);
     }
     free(filenames);
@@ -218,18 +218,18 @@ compressed_file **load_multiple_compressed_files(const char *input_directory, in
     return cfiles;
 }
 
-void free_multiple_compressed_files(compressed_file **cfiles, int file_count)
+void free_multiple_file_data(FileData **cfiles, int file_count)
 {
     size_t i;
     for (i = 0; i < file_count; i++)
     {
-        free_compressed_file(cfiles[i]);
+        free_file_data(cfiles[i]);
     }
     free(cfiles);
 }
 
 
-void save_compressed_file(unsigned char* output, size_t output_len, char* output_filepath)
+void save_file_data(unsigned char* output, size_t output_len, char* output_filepath)
 {
     FILE* fp = fopen(output_filepath, "wb");
     fwrite(output, 1, output_len, fp);

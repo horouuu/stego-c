@@ -347,12 +347,12 @@ StegoDataCollection decode_image(const char *input_img_name)
 int main()
 {
     // Encoding
-    compressed_file *c = load_compressed_file("./test/original/AgentTracker.mp4");
+    FileData *c = load_file_data("./test/original/AgentTracker.mp4");
     int length_bytes = c->data_bits / 8;
     int pos = encode_data(c->data, length_bytes, c->filename, "./test/original/forger.png", "./test/forger-test.png", 0, 1);
     free_compressed_file(c);
 
-    compressed_file *c2 = load_compressed_file("./test/input2_c.bin");
+    FileData *c2 = load_file_data("./test/input2_c.bin");
     int lb = c2->data_bits / 8;
     pos = encode_data(c2->data, lb, c2->filename, "./test/test.png", "./test/test2.png", pos, 1);
     free_compressed_file(c2);
