@@ -1,14 +1,16 @@
 # stego-c
 
-Using Least Significant Bit (LSB) steganography to encode and decode entire c code files into and from an image, in c.
+Using Least Significant Bit (LSB) steganography to encode and decode C code file into and from an image, in C.
 
-This program can perform 2 different functions: encoding c code files/directory into an image, and decoding c code files/directory from an image.
+This program can perform 2 different functions: encoding C code files into an image, and decoding C code files from an image.
 
-In the encoding step, the program reads and compresses all c code files using an elementary string replacement with a predefined map of keywords and their tokens. The lexer then encodes the code file metadata (e.g. file name, compressed byte size) into a fixed header structure followed by the binary data of the compressed file into the least significant bits (LSB) of each colour channel of each pixel in the input image.
+In the encoding step, the program reads and compresses all C code files using an elementary string replacement with a predefined map of keywords and their tokens. The lexer then encodes the code file metadata (e.g. file name, compressed byte size) into a fixed header structure followed by the binary data of the compressed file into the least significant bits (LSB) of each colour channel of each pixel in the input image.
 
-In the case where the data to encode exceeds the number of bits encode-able in the LSB of the image, the lexer will move to the 2nd LSB of the pixel data, and so on and so forth until it reaches the MSB and no further encoding is possible.
+In the case where the data to encode exceeds the number of bits encode-able in the LSB of the image, the lexer will move to the 2nd LSB of the pixel data, and so on and so forth until it reaches the MSB and no further encoding is possible. Users will have to take note that the larger the file to encode, as compared to the input image to encode in, will cause more distortions to the input image.
 
-In the decoding step, the program reads the encoded data, retrieving file metadata from the fixed header entries. The compressed data is then decompressed and reconstructed into a proper c code structure, with its filename and directory structure preserved.
+In the decoding step, the program reads the encoded data, retrieving file metadata from the fixed header entries. The compressed data is then decompressed and reconstructed into a proper C code structure, with its filename preserved.
+
+Although our encoder is optimized to compress C code files, it can technically parse any arbitrary file as long as the image file has enough pixels. If users want to encode multiple files, they’ll have to do it manually.
 
 ## Usage
 
@@ -36,8 +38,6 @@ The decoded files will retain its original directory structure.
 - `-f`: (string) Input c code file name with extension, only used for encoding.
 
 ## Setup and Build
-
-
 
 ## Features
 
