@@ -4,9 +4,9 @@ Using Least Significant Bit (LSB) steganography to encode and decode entire c co
 
 This program can perform 2 different functions: encoding c code files/directory into an image, and decoding c code files/directory from an image.
 
-In the encoding step, the program reads and compresses all c code files using an elementary string replacement with a pre-defined map of keywords and their tokens. The lexer then encodes the code file metadata (e.g. file name, compressed byte size) into a fixed header structure followed by the binary data of the compressed file into the least significant bits (LSB) of each colour channel of each pixel in the input image.
+In the encoding step, the program reads and compresses all c code files using an elementary string replacement with a predefined map of keywords and their tokens. The lexer then encodes the code file metadata (e.g. file name, compressed byte size) into a fixed header structure followed by the binary data of the compressed file into the least significant bits (LSB) of each colour channel of each pixel in the input image.
 
-In the case where the data to encode exceeds the number of bit encodeable in the LSB of the image, the lexer will move to the 2nd LSB of the pixel data, and so on and so forth.
+In the case where the data to encode exceeds the number of bits encode-able in the LSB of the image, the lexer will move to the 2nd LSB of the pixel data, and so on and so forth until it reaches the MSB and no further encoding is possible.
 
 In the decoding step, the program reads the encoded data, retrieving file metadata from the fixed header entries. The compressed data is then decompressed and reconstructed into a proper c code structure, with its filename and directory structure preserved.
 
