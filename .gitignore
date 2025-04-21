@@ -1,5 +1,4 @@
 *.exe
-*.png
 *.out
 *.txt
 /steganography/test
