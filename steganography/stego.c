@@ -59,7 +59,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
     {
         if (bit_sig > 7)
         {
-            printf("Error! Could not write char at pos %d: Not enough space in image.\n", pos);
+            printf("Error! Could not write char at pos %d: Not enough space in image.\n", curr_pos);
             cleanup_free_buffer(image_data);
             return -1;
         }
@@ -88,8 +88,6 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
             curr_pos++;
         }
     }
-
-    printf("\n");
 
     return curr_pos;
 }
@@ -188,7 +186,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     long true_pos = offset_data.true_pos;
     printf("--- FILE DATA ---\n");
 
-    end = get_image_col_byte(pos, image_data) & (1 << bit_sig);
+    end = (get_image_col_byte(pos, image_data) >> bit_sig) & 1;
     printf("Last file: %s\n", end ? "true" : "false");
     pos++;
     true_pos++;
@@ -349,18 +347,18 @@ StegoDataCollection decode_image(const char *input_img_name)
 int main()
 {
     // Encoding
-    // compressed_file *c = load_compressed_file("./test/holy.txt");
-    // int length_bytes = c->data_bits / 8;
-    // int pos = encode_data(c->data, length_bytes, c->filename, "./test/forger.png", "./test/forger-test.png", 0, 1);
-    // free_compressed_file(c);
+    compressed_file *c = load_compressed_file("./test/original/AgentTracker.mp4");
+    int length_bytes = c->data_bits / 8;
+    int pos = encode_data(c->data, length_bytes, c->filename, "./test/original/forger.png", "./test/forger-test.png", 0, 1);
+    free_compressed_file(c);
 
-    // compressed_file *c2 = load_compressed_file("./test/input2_c.bin");
-    // int lb = c2->data_bits / 8;
-    // pos = encode_data(c2->data, lb, c2->filename, "./test/test.png", "./test/test2.png", pos, 1);
-    // free_compressed_file(c2);
+    compressed_file *c2 = load_compressed_file("./test/input2_c.bin");
+    int lb = c2->data_bits / 8;
+    pos = encode_data(c2->data, lb, c2->filename, "./test/test.png", "./test/test2.png", pos, 1);
+    free_compressed_file(c2);
 
     // Decoding
-    StegoDataCollection output_data = decode_image("./test/tester.png");
+    StegoDataCollection output_data = decode_image("./test/forger-test.png");
     for (int i = 0; i < output_data.num_files; i++)
     {
         save_compressed_file(output_data.output_data[i].data, output_data.output_data[i].file_size_bytes, output_data.output_data[i].file_name);
