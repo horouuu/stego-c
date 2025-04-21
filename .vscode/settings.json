@@ -10,6 +10,7 @@
         "stdlib.h": "c",
         "type_traits": "c",
         "stego-helpers.h": "c",
-        "file_io.h": "c"
+        "file_io.h": "c",
+        "string.h": "c"
     }
 }
