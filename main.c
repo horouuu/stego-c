@@ -57,20 +57,19 @@ int main(int argc, char **argsv)
                argsv[0]);
         printf("\nFlags:\n");
         printf("  -h, --help: Show this help message.\n");
-        printf("  -e, --encode: Enable encoding mode. Encode c code "
-               "files/directory into an image. Cannot be used with decoding "
+        printf("  -e, --encode: Enable encoding mode. Encode files "
+               "into an image. Cannot be used with decoding "
                "mode.\n");
-        printf("  -d, --decode: Enable decoding mode. Decode c code "
-               "files/directory from an image. Cannot be used with encoding "
+        printf("  -d, --decode: Enable decoding mode. Decode files "
+               "from an image. Cannot be used with encoding "
                "mode.\n");
         printf("  -i: Input image file name with extension. Accepts PNG, "
                "JPG/JPEG, BMP, PSD, TGA, GIF, PIC, PNM (.ppm and .pgm) "
                "formats.\n");
         printf("  -o: Output image file name with extension. Accepts PNG, "
                "JPG/JPEG, BMP formats. Used only in encoding.\n");
-        printf("  -f: Input single c code file name with extension. Used only "
+        printf("  -f: Input single file name with extension. Used only "
                "in encoding.\n");
-        printf("  -fd: Input c code directory. Used only in encoding.\n");
         printf("\nExample usage:\n");
         printf("  %s -e -i input.png -o output.png -f file.c\n", argsv[0]);
         printf("  %s -d -i input.png -o output.c\n", argsv[0]);
