@@ -227,3 +227,11 @@ void free_multiple_compressed_files(compressed_file **cfiles, int file_count)
     }
     free(cfiles);
 }
+
+
+void save_compressed_file(unsigned char* output, size_t output_len, char* output_filepath)
+{
+    FILE* fp = fopen(output_filepath, "wb");
+    fwrite(output, 1, output_len, fp);
+    fclose(fp);
+}
