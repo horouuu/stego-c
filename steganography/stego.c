@@ -67,7 +67,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
     {
         if (bit_sig > 7)
         {
-            printf("Error! Could not write char at pos %d: Not enough space in image.\n", curr_pos);
+            printf("Error! Could not write char at pos %ld: Not enough space in image.\n", curr_pos);
             cleanup_free_buffer(image_data);
             return -1;
         }
@@ -116,7 +116,7 @@ int encode_header(int end, int fns_bytes, const char *filename, unsigned long fs
     const int SIZE_FILE = 24;
     if (fs_bits > 16777215)
     {
-        printf("Error. Size of file is too large: %d", fs_bits);
+        printf("Error. Size of file is too large: %lu", fs_bits);
         return -1;
     }
 
@@ -250,7 +250,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
             bit_sig++;
         }
     }
-    printf("File size: %dB\n", file_size);
+    printf("File size: %luB\n", file_size);
 
     filename_limit = pos + filename_size * 8;
     fn_buffer = 0;
@@ -319,15 +319,21 @@ StegoDataCollection decode_image(const char *input_img_name)
     unsigned char *data_buffer;
     int bit_counter;
     int byte_counter;
+    int current_file_buffer;
     load_image(input_img_name, &image_data);
     max_img_idx = image_data.height * image_data.width * image_data.channels - 1;
     file_counter = 0;
+    current_file_buffer = 3;
     last = 0;
     true_pos = 0;
 
-    out_data = malloc(sizeof(StegoData) * 3);
+    out_data = malloc(sizeof(StegoData) * current_file_buffer);
     while (last == 0)
     {
+        if (file_counter == current_file_buffer)
+        {
+            out_data = realloc(out_data, sizeof(StegoData) * current_file_buffer * 2);
+        }
         d = decode_header(&image_data, true_pos);
 
         true_pos = d.data_offset;
