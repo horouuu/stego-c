@@ -35,9 +35,9 @@ The decoded files will retain its original directory structure.
 - `-o`: (string) Output image file name with extension, only used for encoding. Accepts PNG, JPG/JPEG, BMP formats.
 - `-f`: (string) Input c code file name with extension, only used for encoding.
 
-## Prerequisites
-
 ## Setup and Build
+
+
 
 ## Features
 
