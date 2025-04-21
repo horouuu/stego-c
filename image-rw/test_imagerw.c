@@ -12,34 +12,38 @@
  * `./test/_imagerw input.png output.png 2`
  */
 int main(int argc, char **argv) {
+  int i, num_lsb;
+  const char *input_filename, *output_filename, *lsb;
+  ImageData image;
+  char mask;
+
   if (argc != 4) {
     fprintf(stderr,
             "Usage: %s <input filename> <output filename> <number of LSB>\n",
             argv[0]);
     return 1;
   }
-  const char *input_filename = argv[1];
-  const char *output_filename = argv[2];
-  const char *lsb = argv[3];
-  int num_lsb = atoi(lsb);
+  input_filename = argv[1];
+  output_filename = argv[2];
+  lsb = argv[3];
+  num_lsb = atoi(lsb);
 
-  ImageData image;
   if (!load_image(input_filename, &image)) {
     return 1;
   }
   printf("Loaded image: %s (%d x %d, %d channels)\n", input_filename,
          image.width, image.height, image.channels);
 
-  // Write random data to the LSBs for each colour channel of each pixel in the image
-  char mask = ~(~0 << num_lsb); // Mask for the LSB channels
-  for (int i = 0; i < image.width * image.height * image.channels; i++) {
+  /* Write random data to the LSBs for each colour channel of each pixel in the image */
+  mask = ~(~0 << num_lsb); /* Mask for the LSB channels */
+  for (i = 0; i < image.width * image.height * image.channels; i++) {
     image.data[i] = (image.data[i] & ~mask) | (rand() % 256 & mask);
   }
   printf("Modified image data with random values in the %d LSBs of each colour "
          "channel.\n",
          num_lsb);
 
-  // Save the modified image
+  /* Save the modified image */
   if (!save_image(output_filename, &image)) {
     cleanup_free_buffer(&image);
     return 1;

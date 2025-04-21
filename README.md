@@ -1,5 +1,7 @@
 # stego-c
 
+## Prerequisites
+
 ## Setup and Build
 
 ## Features

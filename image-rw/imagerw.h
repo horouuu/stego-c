@@ -7,6 +7,8 @@ typedef struct {
   unsigned char *data;
   int width;
   int height;
+  int depth;
+  int maxval;
   int channels;
 } ImageData;
 
@@ -65,4 +67,4 @@ extern int set_image_col_byte(int pos, ImageData *image, unsigned char value);
  */
 extern void cleanup_free_buffer(ImageData *image);
 
-#endif // IMAGERW_H
+#endif /* IMAGERW_H */
