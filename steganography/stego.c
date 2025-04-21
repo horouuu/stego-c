@@ -84,6 +84,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
             }
 
             set_image_col_byte(pos, image_data, data_buffer);
+
             pos++;
             curr_pos++;
         }
@@ -116,7 +117,7 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
     int bit_sig = offset_data.bit_sig;
 
     unsigned char end_value = (unsigned char)end & 1;
-    unsigned char end_buffer = get_image_col_byte(true_start_pos, image_data);
+    unsigned char end_buffer = get_image_col_byte(pos, image_data);
     if (end_value == 1)
     {
         end_buffer |= (end_value << bit_sig);
@@ -125,7 +126,7 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
     {
         end_buffer &= ~(1 << bit_sig);
     }
-    set_image_col_byte(true_start_pos, image_data, end_buffer);
+    set_image_col_byte(pos, image_data, end_buffer);
     pos++;
     true_pos++;
 
