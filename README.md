@@ -1,12 +1,17 @@
 # stego-c
 
+## Prerequisites
+
 ## Setup and Build
 
 ## Features
 
 ### File Reading
 
+Win32 dynamic at 8 bits-per-pixel component
+
 ### Source Code Compression
+
 input files for compression are stored under `/compressor_input`.
 Each file within this directory needs to be a `.c` file for the `compress_and_save` function to process it, otherwise the file is ignored.
 
@@ -17,9 +22,9 @@ input files for decompression are stored under `/compressor_output`, as the inpu
 
 output files from decompression are stored under `/decompressor_output`
 Each file within this directory will be a `.c` file.
+
 ### Steganography
 
 ### Decoding
 
 ## Credits
-
