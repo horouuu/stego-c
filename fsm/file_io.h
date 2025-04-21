@@ -36,7 +36,7 @@ typedef struct
     char *filename;
 } FileData;
 
-FileData *load_file_data(const char *filepath);
+FileData *load_file(const char *filepath);
 void free_file_data(FileData *cf);
 FileData **load_multiple_file_data(const char *input_directory, int *file_count);
 void free_multiple_file_data(FileData **files, int file_count);
