@@ -34,12 +34,12 @@ typedef struct
     unsigned char *data;
     int data_bits;
     char *filename;
-} compressed_file;
+} FileData;
 
-compressed_file *load_compressed_file(const char *filepath);
-void free_compressed_file(compressed_file *cf);
-compressed_file **load_multiple_compressed_files(const char *input_directory, int *file_count);
-void free_multiple_compressed_files(compressed_file **files, int file_count);
-void save_compressed_file(unsigned char* output, size_t output_len, char* output_filepath);
+FileData *load_file_data(const char *filepath);
+void free_file_data(FileData *cf);
+FileData **load_multiple_file_data(const char *input_directory, int *file_count);
+void free_multiple_file_data(FileData **files, int file_count);
+void save_file_data(unsigned char* output, size_t output_len, char* output_filepath);
 
 #endif

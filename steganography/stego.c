@@ -348,21 +348,21 @@ StegoDataCollection decode_image(const char *input_img_name)
 int main()
 {
     // Encoding
-    compressed_file *c = load_compressed_file("./test/original/AgentTracker.mp4");
+    FileData *c = load_file_data("./test/original/AgentTracker.mp4");
     int length_bytes = c->data_bits / 8;
-    int pos = encode_data(c->data, length_bytes, c->filename, "./test/original/forger.png", "./test/forger-test.png", 0, 0);
-    free_compressed_file(c);
+    int pos = encode_data(c->data, length_bytes, c->filename, "./test/original/forger.png", "./test/forger-test.png", 0, 1);
+    free_file_data(c);
 
-    compressed_file *c2 = load_compressed_file("./test/original/forger-2.png");
+    FileData *c2 = load_file_data("./test/input2_c.bin");
     int lb = c2->data_bits / 8;
-    pos = encode_data(c2->data, lb, c2->filename, "./test/forger-test.png", "./test/forger-test.png", pos, 1);
-    free_compressed_file(c2);
+    pos = encode_data(c2->data, lb, c2->filename, "./test/test.png", "./test/test2.png", pos, 1);
+    free_file_data(c2);
 
     // Decoding
     StegoDataCollection output_data = decode_image("./test/forger-test.png");
     for (int i = 0; i < output_data.num_files; i++)
     {
-        save_compressed_file(output_data.output_data[i].data, output_data.output_data[i].file_size_bytes, output_data.output_data[i].file_name);
+        save_file_data(output_data.output_data[i].data, output_data.output_data[i].file_size_bytes, output_data.output_data[i].file_name);
     }
     free_stego_data_collection(&output_data);
 }

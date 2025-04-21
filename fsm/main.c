@@ -12,18 +12,18 @@ int main(void)
     const char *compressor_input_directory = "../compressor_input";
     const char *compressor_output_directory = "../compressor_output";
     const char *decompressor_output_directory = "../decompressor_output";
-    compressed_file **cfiles = NULL;
+    FileData **cfiles = NULL;
     int i, j;
 
     compress_and_save_multiple(compressor_input_directory, compressor_output_directory);
     decompress_and_save_multiple(compressor_output_directory, decompressor_output_directory);
 
-    cfiles = load_multiple_compressed_files(compressor_output_directory, &file_count);
+    cfiles = load_multiple_file_data(compressor_output_directory, &file_count);
     if (cfiles)
     {
         for (i = 0; i < file_count; i++)
         {
-            compressed_file *cf = cfiles[i];
+            FileData *cf = cfiles[i];
             printf("Filename: %s\n", cf->filename);
             printf("File size: %d bits\n", cf->data_bits);
             printf("Bytes: ");
@@ -34,7 +34,7 @@ int main(void)
             printf("\n");
         }
 
-        free_multiple_compressed_files(cfiles, file_count);
+        free_multiple_file_data(cfiles, file_count);
     }
 
     return 0;
