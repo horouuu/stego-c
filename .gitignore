@@ -1,3 +1,5 @@
 .vscode/
 *.exe
+*.png
 *.out
+/steganography/test
