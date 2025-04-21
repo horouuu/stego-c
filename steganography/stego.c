@@ -84,6 +84,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
             }
 
             set_image_col_byte(pos, image_data, data_buffer);
+
             pos++;
             curr_pos++;
         }
@@ -116,7 +117,7 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
     int bit_sig = offset_data.bit_sig;
 
     unsigned char end_value = (unsigned char)end & 1;
-    unsigned char end_buffer = get_image_col_byte(true_start_pos, image_data);
+    unsigned char end_buffer = get_image_col_byte(pos, image_data);
     if (end_value == 1)
     {
         end_buffer |= (end_value << bit_sig);
@@ -125,7 +126,7 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
     {
         end_buffer &= ~(1 << bit_sig);
     }
-    set_image_col_byte(true_start_pos, image_data, end_buffer);
+    set_image_col_byte(pos, image_data, end_buffer);
     pos++;
     true_pos++;
 
@@ -349,12 +350,12 @@ int main()
     // Encoding
     compressed_file *c = load_compressed_file("./test/original/AgentTracker.mp4");
     int length_bytes = c->data_bits / 8;
-    int pos = encode_data(c->data, length_bytes, c->filename, "./test/original/forger.png", "./test/forger-test.png", 0, 1);
+    int pos = encode_data(c->data, length_bytes, c->filename, "./test/original/forger.png", "./test/forger-test.png", 0, 0);
     free_compressed_file(c);
 
-    compressed_file *c2 = load_compressed_file("./test/input2_c.bin");
+    compressed_file *c2 = load_compressed_file("./test/original/forger-2.png");
     int lb = c2->data_bits / 8;
-    pos = encode_data(c2->data, lb, c2->filename, "./test/test.png", "./test/test2.png", pos, 1);
+    pos = encode_data(c2->data, lb, c2->filename, "./test/forger-test.png", "./test/forger-test.png", pos, 1);
     free_compressed_file(c2);
 
     // Decoding
