@@ -35,12 +35,11 @@ The decoded files will retain its original directory structure.
 ### Flags
 
 - `-h` or `--help`: (boolean) Show help message.
-- `-e` or `--encode`: (boolean) Enable encoding mode. Encode c code files/directory into an image. Cannot be used with decoding mode.
-- `-d` or `--decode`: (boolean) Enable decoding mode. Decode c code files/directory from an image. Cannot be used with encoding mode.
+- `-e` or `--encode`: (boolean) Enable encoding mode. Encode c code file into an image. Cannot be used with decoding mode.
+- `-d` or `--decode`: (boolean) Enable decoding mode. Decode c code file from an image. Cannot be used with encoding mode.
 - `-i`: (string) Input image file name with extension. Accepts PNG, JPG/JPEG, BMP, PSD, TGA, GIF, PIC, PNM (.ppm and .pgm) formats.
 - `-o`: (string) Output image file name with extension, only used for encoding. Accepts PNG, JPG/JPEG, BMP formats.
-- `-f`: (string) Input c code file name with extension/directory, only used for encoding.
-- `-fd`: (string) Input c code directory, only used for encoding.
+- `-f`: (string) Input c code file name with extension, only used for encoding.
 
 ## Prerequisites
 
