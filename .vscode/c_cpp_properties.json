@@ -1,0 +1,12 @@
+{
+	"configurations": [
+		{
+			"name": "Win32",
+			"includePath": [
+				"${default}",
+				"C:/Program Files/ImageMagick-7.1.1-Q16-HDRI/include"
+			]
+		}
+	],
+	"version": 4
+}
