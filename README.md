@@ -10,6 +10,10 @@ In the case where the data to encode exceeds the number of bit encodeable in the
 
 In the decoding step, the program reads the encoded data, retrieving file metadata from the fixed header entries. The compressed data is then decompressed and reconstructed into a proper c code structure, with its filename and directory structure preserved.
 
+## Usage
+
+Run and shit.
+
 ## Prerequisites
 
 ## Setup and Build
