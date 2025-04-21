@@ -41,5 +41,7 @@ int encode_data(const unsigned char *data, int data_size_bits, const char *data_
 HeaderData decode_header(ImageData *image_data, long true_start_pos);
 StegoDataCollection decode_image(const char *input_img_name);
 void free_header_data(HeaderData *hd);
+void free_stego_data_collection(StegoDataCollection *sdc);
+
 
 #endif

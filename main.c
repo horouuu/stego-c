@@ -28,6 +28,12 @@ int main(int argc, char **argsv)
   char *input_image = NULL, *output_image = NULL, *input_file = NULL,
        *input_dir = NULL;
 
+  FileData *c;
+  int length_bytes;
+  int pos;
+  int j;
+  StegoDataCollection output_data;
+
   /* Check empty args */
   if (argc < 2)
   {
@@ -92,7 +98,7 @@ int main(int argc, char **argsv)
       }
       else if (strcmp(argsv[i], "-f") == 0)
       {
-        printf("Input code file: %s\n", argsv[++i]);
+        printf("Input file: %s\n", argsv[++i]);
         input_file = argsv[i];
       }
       else if (strcmp(argsv[i], "-fd") == 0)
@@ -141,11 +147,20 @@ int main(int argc, char **argsv)
 
   if (mode_encoding && input_file)
   {
-    FileData *c = load_file(input_file);
-    int length_bytes = c->data_bits / 8;
-    int pos = encode_data(c->data, length_bytes, c->filename, input_image, output_image, 0, 1);
+    c = load_file(input_file);
+    length_bytes = c->data_bits / 8;
+    pos = encode_data(c->data, length_bytes, c->filename, input_image, output_image, 0, 1);
     fprintf(stdout, "Encoding successful with latest index position %d", pos);
     free_file_data(c);
+  }
+  else if (mode_decoding && input_image)
+  {
+    output_data = decode_image(input_image);
+    for (j = 0; j < output_data.num_files; j++)
+    {
+      save_file_data(output_data.output_data[j].data, output_data.output_data[j].file_size_bytes, output_data.output_data[j].file_name);
+    }
+    free_stego_data_collection(&output_data);
   }
 
   return 0;

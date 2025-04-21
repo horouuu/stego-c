@@ -3,6 +3,21 @@
 #include <stdlib.h>
 #include "stego-helpers.h"
 
+const char *get_filename(const char *path)
+{
+    const char *slash;
+    const char *backslash;
+    const char *last_sep;
+    if (path == NULL)
+        return NULL;
+
+    slash = strrchr(path, '/');
+    backslash = strrchr(path, '\\');
+    last_sep = slash > backslash ? slash : backslash;
+
+    return (char *)last_sep ? (char *)last_sep + 1 : (char *)path;
+}
+
 void free_bitarray(BitArray *bitarray)
 {
     free(bitarray->bit_array);

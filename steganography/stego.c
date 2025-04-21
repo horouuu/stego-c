@@ -151,7 +151,7 @@ int encode_header(int end, int fns_bytes, const char *filename, unsigned long fs
     fs_bitarray = long_to_bitarray(fs_bits, SIZE_FILE);
 
     true_pos = write_encoding_bytes(fs_bitarray.bit_array, 3, image_data, true_pos);
-    true_pos = write_encoding_bytes((unsigned char *)filename, fns_bytes, image_data, true_pos);
+    true_pos = write_encoding_bytes((unsigned char *)get_filename(filename), fns_bytes, image_data, true_pos);
 
     free_bitarray(&fs_bitarray);
     return true_pos;
