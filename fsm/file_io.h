@@ -3,6 +3,12 @@
 
 #include <stdio.h>
 
+#define C_EXTENSION ".c"
+#define H_EXTENSION ".h"
+#define C_BIN_EXTENSION "_c.bin"
+#define H_BIN_EXTENSION "_h.bin"
+#define BIN_EXTENSION ".bin"
+
 int filename_has_ending(char *filename, const char *ending);
 int is_code_file(char *filename);
 

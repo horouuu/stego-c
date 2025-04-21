@@ -24,12 +24,12 @@ int filename_has_ending(char *filename, const char *ending)
 
 int is_code_file(char *filename)
 {
-    return filename_has_ending(filename, ".c") || filename_has_ending(filename, ".h");
+    return filename_has_ending(filename, C_EXTENSION) || filename_has_ending(filename, H_EXTENSION);
 }
 
 char* get_original_filename_from_bin(char* bin_filename)
 {
-    size_t suffix_len = strlen("_c.bin");
+    size_t suffix_len = strlen(C_BIN_EXTENSION);
     size_t len = strlen(bin_filename);
     char* original_filename = NULL;
     int original_filename_len;
@@ -45,7 +45,7 @@ char* get_original_filename_from_bin(char* bin_filename)
 
 char* get_original_filename_from_c_or_h(char* c_or_h_filename)
 {
-    size_t suffix_len = strlen(".c");
+    size_t suffix_len = strlen(C_EXTENSION);
     size_t len = strlen(c_or_h_filename);
     char* original_filename;
     int original_filename_len;
@@ -64,9 +64,9 @@ char* convert_bin_to_c_or_h(char* bin_filename)
     /*input format: filename_c.bin or filename_h.bin
     output format: filename.c or filename.h
     */
-    if(filename_has_ending(bin_filename, "_c.bin")){
+    if(filename_has_ending(bin_filename, C_BIN_EXTENSION)){
         return convert_bin_to_c(bin_filename);
-    } else if(filename_has_ending(bin_filename, "_h.bin")){
+    } else if(filename_has_ending(bin_filename, H_BIN_EXTENSION)){
         return convert_bin_to_h(bin_filename);
     }
     return NULL;
@@ -76,7 +76,7 @@ char* convert_bin_to_c(char* bin_filename)
 {
     char* filename = get_original_filename_from_bin(bin_filename);
     if (!filename) return NULL;
-    strcat(filename, ".c");
+    strcat(filename, C_EXTENSION);
     return filename;
 }
 
@@ -85,19 +85,19 @@ char* convert_bin_to_h(char* bin_filename)
     char* filename = get_original_filename_from_bin(bin_filename);
     if (!filename) 
         return NULL;
-    strcat(filename, ".h");
+    strcat(filename, H_EXTENSION);
     return filename;
 }
 
 char* convert_c_or_h_to_bin(char* c_or_h_filename)
 {
-    if (filename_has_ending(c_or_h_filename, ".c")) {
+    if (filename_has_ending(c_or_h_filename, C_EXTENSION)) {
         char* filename = get_original_filename_from_c_or_h(c_or_h_filename);
-        strcat(filename, "_c.bin");
+        strcat(filename, C_BIN_EXTENSION);
         return filename;
-    } else if (filename_has_ending(c_or_h_filename, ".h")) {
+    } else if (filename_has_ending(c_or_h_filename, H_EXTENSION)) {
         char* filename = get_original_filename_from_c_or_h(c_or_h_filename);
-        strcat(filename, "_h.bin");
+        strcat(filename, H_BIN_EXTENSION);
         return filename;
     }
     return NULL;
@@ -106,14 +106,14 @@ char* convert_c_or_h_to_bin(char* c_or_h_filename)
 char* convert_c_to_bin(char* c_filename)
 {
     char* filename = get_original_filename_from_c_or_h(c_filename);
-    strcat(filename, "_c.bin");
+    strcat(filename, C_BIN_EXTENSION);
     return filename;
 }
 
 char* convert_h_to_bin(char* h_filename)
 {
     char* filename = get_original_filename_from_c_or_h(h_filename);
-    strcat(filename, "_h.bin");
+    strcat(filename, H_BIN_EXTENSION);
     return filename;
 }
 

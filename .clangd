@@ -1,0 +1,7 @@
+CompileFlags:
+ Add:
+  - "-Wall"
+  - "-Werror"
+  - "-ansi"
+  - "-pedantic"
+  - "-fsanitize=address"
