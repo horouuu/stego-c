@@ -36,19 +36,19 @@ int main(int argc, char **argv) {
 
   /* Write random data to the LSBs for each colour channel of each pixel in the image */
   mask = ~(~0 << num_lsb); /* Mask for the LSB channels */
-  /* for (i = 0; i < image.width * image.height * image.channels; i++) {
+  for (i = 0; i < image.width * image.height * image.channels; i++) {
     image.data[i] = (image.data[i] & ~mask) | (rand() % 256 & mask);
   }
   printf("Modified image data with random values in the %d LSBs of each colour "
          "channel.\n",
-         num_lsb); */
+         num_lsb);
 
   /* Save the modified image */
-  /* if (!save_image(output_filename, &image)) {
+  if (!save_image(output_filename, &image)) {
     cleanup_free_buffer(&image);
     return 1;
   }
-  printf("Saved modified image: %s\n", output_filename); */
+  printf("Saved modified image: %s\n", output_filename);
 
   return 0;
 }

@@ -1,8 +1,7 @@
 CompileFlags:
-	Add:
-		- "-IC:/Program Files (x86)/ImageMagick-7.1.1-Q8/include"
-		- "-Wall"
-		- "-Werror"
-		- "-ansi"
-		- "-pedantic"
-		- "-fsanitize=address"
+ Add:
+  - "-Wall"
+  - "-Werror"
+  - "-ansi"
+  - "-pedantic"
+  - "-fsanitize=address"
