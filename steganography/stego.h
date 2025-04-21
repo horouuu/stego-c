@@ -36,7 +36,7 @@ typedef struct
 void free_header_data(HeaderData *hd);
 OffsetData get_offset_data(const long true_pos, const int img_max_idx);
 int write_encoding_bytes(const unsigned char *data, const unsigned long data_size_bytes, ImageData *image_data, const long true_start_pos);
-int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigned long fs_bits, ImageData *image_data, unsigned long true_start_pos);
+int encode_header(int end, int fns_bytes, const char *filename, unsigned long fs_bits, ImageData *image_data, unsigned long true_start_pos);
 int encode_data(const unsigned char *data, int data_size_bits, const char *data_file_name, const char *image_file_name, const char *output_file_name, unsigned long true_start_pos, int last);
 HeaderData decode_header(ImageData *image_data, long true_start_pos);
 StegoDataCollection decode_image(const char *input_img_name);

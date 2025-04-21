@@ -10,5 +10,6 @@ typedef struct
 void free_bitarray(BitArray *bitarray);
 long bitarray_to_long(const BitArray bitarray);
 BitArray long_to_bitarray(const long num, const int pad_bits);
+double __cdecl fmax(double, double);
 
 #endif

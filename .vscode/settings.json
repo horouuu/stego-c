@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "*.json.liquid": "json",
+        "*.yaml.liquid": "yaml",
+        "*.md.liquid": "markdown",
+        "*.js.liquid": "liquid-javascript",
+        "*.css.liquid": "liquid-css",
+        "*.scss.liquid": "liquid-scss",
+        "imagerw.h": "c",
+        "stdlib.h": "c",
+        "type_traits": "c",
+        "stego-helpers.h": "c",
+        "file_io.h": "c"
+    }
+}
