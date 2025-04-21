@@ -12,7 +12,35 @@ In the decoding step, the program reads the encoded data, retrieving file metada
 
 ## Usage
 
-Run and shit.
+Encoding a single c code file into an image:
+
+```bash
+./stego -e -i input.png -o output.png -f file.c
+```
+
+Encoding a c source code directory into an image:
+
+```bash
+./stego -e -i input.png -o output.png -fd ./src
+```
+
+Decoding from an image:
+
+```bash
+./stego -d -i input.png
+```
+
+The decoded files will retain its original directory structure.
+
+### Flags
+
+- `-h` or `--help`: (boolean) Show help message.
+- `-e` or `--encode`: (boolean) Enable encoding mode. Encode c code files/directory into an image. Cannot be used with decoding mode.
+- `-d` or `--decode`: (boolean) Enable decoding mode. Decode c code files/directory from an image. Cannot be used with encoding mode.
+- `-i`: (string) Input image file name with extension. Accepts PNG, JPG/JPEG, BMP, PSD, TGA, GIF, PIC, PNM (.ppm and .pgm) formats.
+- `-o`: (string) Output image file name with extension, only used for encoding. Accepts PNG, JPG/JPEG, BMP formats.
+- `-f`: (string) Input c code file name with extension/directory, only used for encoding.
+- `-fd`: (string) Input c code directory, only used for encoding.
 
 ## Prerequisites
 
