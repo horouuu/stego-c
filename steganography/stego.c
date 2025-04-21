@@ -11,21 +11,30 @@ void free_header_data(HeaderData *hd)
     free(hd->file_name);
 }
 
+void free_stego_data(StegoData *sd)
+{
+    free(sd->data);
+    free(sd->file_name);
+}
+
+void free_stego_data_collection(StegoDataCollection *sdc)
+{
+    int i;
+    for (i = 0; i < sdc->num_files; i++)
+    {
+        free_stego_data(&sdc->output_data[i]);
+    }
+
+    free(sdc->output_data);
+}
+
 OffsetData get_offset_data(const long true_pos, const int img_max_idx)
 {
     OffsetData out;
-    long rel_pos = true_pos;
-    int bit_sig = 0;
-    while (rel_pos - img_max_idx > 0)
-    {
-        rel_pos -= img_max_idx;
-        bit_sig++;
-    }
-
-    out.bit_sig = bit_sig;
-    out.rel_pos = rel_pos;
+    int pixels_per_bit_sig = img_max_idx + 1;
+    out.bit_sig = true_pos / pixels_per_bit_sig;
+    out.rel_pos = true_pos % pixels_per_bit_sig;
     out.true_pos = true_pos;
-
     return out;
 }
 
@@ -38,7 +47,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
         return -1;
     }
 
-    long max_img_idx = image_data->height * image_data->width - 1;
+    long max_img_idx = image_data->height * image_data->width * image_data->channels - 1;
     OffsetData offset_data = get_offset_data(true_start_pos, max_img_idx);
     int bit_sig = offset_data.bit_sig;
     long curr_pos = offset_data.true_pos;
@@ -48,12 +57,6 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
     unsigned char data_bit;
     for (int i = 0; i < data_size_bytes; i++)
     {
-        if (pos > max_img_idx)
-        {
-            pos = 0;
-            bit_sig++;
-        }
-
         if (bit_sig > 7)
         {
             printf("Error! Could not write char at pos %d: Not enough space in image.\n", pos);
@@ -63,7 +66,13 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
 
         for (int j = 0; j < 8; j++)
         {
-            data_bit = ((1 << j) & data[i]) >> j;
+            if (pos > max_img_idx)
+            {
+                pos = 0;
+                bit_sig++;
+            }
+
+            data_bit = (data[i] >> j) & 1;
             data_buffer = get_image_col_byte(pos, image_data);
             if (data_bit == 1)
             {
@@ -71,7 +80,7 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
             }
             else
             {
-                data_buffer &= (~1 << bit_sig) | (255 >> (8 - bit_sig));
+                data_buffer &= ~(1 << bit_sig);
             }
 
             set_image_col_byte(pos, image_data, data_buffer);
@@ -79,6 +88,8 @@ int write_encoding_bytes(const unsigned char *data, const unsigned long data_siz
             curr_pos++;
         }
     }
+
+    printf("\n");
 
     return curr_pos;
 }
@@ -100,7 +111,7 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
         return -1;
     }
 
-    int max_img_idx = image_data->height * image_data->width - 1;
+    int max_img_idx = image_data->height * image_data->width * image_data->channels - 1;
     OffsetData offset_data = get_offset_data(true_start_pos, max_img_idx);
     long pos = offset_data.rel_pos;
     long true_pos = offset_data.true_pos;
@@ -114,7 +125,7 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
     }
     else
     {
-        end_buffer &= (~1 << bit_sig) | (255 >> (8 - bit_sig));
+        end_buffer &= ~(1 << bit_sig);
     }
     set_image_col_byte(true_start_pos, image_data, end_buffer);
     pos++;
@@ -131,12 +142,12 @@ int encode_header(int end, int fns_bytes, const unsigned char *filename, unsigne
     return true_pos;
 }
 
-int encode_data(const unsigned char *data, int data_size_bits, const char *data_file_name, const char *image_file_name, const char *output_file_name, unsigned long true_start_pos)
+int encode_data(const unsigned char *data, int data_size_bytes, const char *data_file_name, const char *image_file_name, const char *output_file_name, unsigned long true_start_pos, int last)
 {
     ImageData image_data;
     unsigned long pos = true_start_pos;
     load_image(image_file_name, &image_data);
-    pos = encode_header(1, strlen(data_file_name), data_file_name, data_size_bits, &image_data, pos);
+    pos = encode_header(last, strlen(data_file_name), data_file_name, data_size_bytes, &image_data, pos);
     if (pos == -1)
     {
         cleanup_free_buffer(&image_data);
@@ -144,11 +155,11 @@ int encode_data(const unsigned char *data, int data_size_bits, const char *data_
         return -1;
     }
 
-    write_encoding_bytes(data, data_size_bits, &image_data, pos);
+    pos = write_encoding_bytes(data, data_size_bytes, &image_data, pos);
 
     save_image(output_file_name, &image_data);
     cleanup_free_buffer(&image_data);
-    return 0;
+    return pos;
 }
 
 HeaderData decode_header(ImageData *image_data, long true_start_pos)
@@ -170,11 +181,12 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     const int MAX_POS_FILENAME_SIZE_BITS = 8;
     const int MAX_POS_SIZE_BITS = 24;
 
-    int max_img_idx = image_data->height * image_data->width - 1;
+    int max_img_idx = image_data->height * image_data->width * image_data->channels - 1;
     offset_data = get_offset_data(true_start_pos, max_img_idx);
     int bit_sig = offset_data.bit_sig;
     long pos = offset_data.rel_pos;
     long true_pos = offset_data.true_pos;
+    printf("--- FILE DATA ---\n");
 
     end = get_image_col_byte(pos, image_data) & (1 << bit_sig);
     printf("Last file: %s\n", end ? "true" : "false");
@@ -189,7 +201,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     filename_size = 0;
     for (i = 0; i < MAX_POS_FILENAME_SIZE_BITS; i++)
     {
-        fns_read = get_image_col_byte(pos, image_data) & (1 << bit_sig);
+        fns_read = (get_image_col_byte(pos, image_data) >> bit_sig) & 1;
         filename_size |= fns_read << i;
         pos++;
         true_pos++;
@@ -203,7 +215,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     unsigned long file_size = 0;
     for (j = 0; j < MAX_POS_SIZE_BITS; j++)
     {
-        fs_read = get_image_col_byte(pos, image_data) & (1 << bit_sig);
+        fs_read = (get_image_col_byte(pos, image_data) >> bit_sig) & 1;
         file_size |= fs_read << j;
         pos++;
         true_pos++;
@@ -222,7 +234,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     filename = malloc((filename_size + 1) * sizeof(char));
     while (pos < filename_limit)
     {
-        fn_read = get_image_col_byte(pos, image_data) & (1 << bit_sig);
+        fn_read = (get_image_col_byte(pos, image_data) >> bit_sig) & 1;
         fn_buffer |= fn_read << fn_bit_counter;
         fn_bit_counter++;
         pos++;
@@ -244,6 +256,7 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     }
     filename[fn_byte_counter] = '\0';
     printf("File name: %s\n", filename);
+    printf("\n");
 
     out.file_name = filename;
     out.file_name_size_bytes = filename_size;
@@ -254,58 +267,103 @@ HeaderData decode_header(ImageData *image_data, long true_start_pos)
     return out;
 }
 
-int decode_image(const char *input_img_name, unsigned char *output)
+StegoDataCollection decode_image(const char *input_img_name)
 {
     ImageData image_data;
     unsigned char read_bit;
     load_image(input_img_name, &image_data);
-    HeaderData d = decode_header(&image_data, 0);
-    unsigned long pos = d.data_offset;
-    unsigned long end_index = d.data_offset + d.file_size_bytes * 8;
+    int max_img_idx = image_data.height * image_data.width * image_data.channels - 1;
+    int file_counter = 0;
+    int last = 0;
+    unsigned long true_pos = 0;
+    StegoDataCollection out;
+    StegoData *out_data = malloc(sizeof(StegoData) * 3);
 
-    int bit_sig = 0;
-    int max_img_idx = image_data.width * image_data.height - 1;
-    unsigned char read_buffer = 0;
-    unsigned char *data_buffer = malloc((d.file_size_bytes + 1) * sizeof(char));
-    int bit_counter = 0;
-    int byte_counter = 0;
-    for (pos; pos < end_index; pos++)
+    while (last == 0)
     {
-        read_bit = get_image_col_byte(pos, &image_data) & (1 << bit_sig);
-        read_buffer |= (read_bit << bit_counter);
-        bit_counter++;
+        HeaderData d = decode_header(&image_data, true_pos);
+        StegoData stego_buffer;
 
-        if (bit_counter == 8)
+        true_pos = d.data_offset;
+        last = d.last_file;
+        unsigned long end_index = d.data_offset + d.file_size_bytes * 8;
+        OffsetData offset_start = get_offset_data(true_pos, max_img_idx);
+        OffsetData offset_end = get_offset_data(end_index, max_img_idx);
+
+        int bit_sig = offset_start.bit_sig;
+        int end_sig = offset_end.bit_sig;
+        unsigned long rel_pos = offset_start.rel_pos;
+        unsigned long end_pos = offset_end.rel_pos;
+        unsigned char read_buffer = 0;
+        unsigned char *data_buffer = malloc((d.file_size_bytes + 1) * sizeof(char));
+        int bit_counter = 0;
+        int byte_counter = 0;
+        while ((rel_pos < end_pos) || (bit_sig < end_sig))
         {
-            bit_counter = 0;
-            data_buffer[byte_counter] = read_buffer;
-            read_buffer = 0;
-            byte_counter++;
+            if (rel_pos > max_img_idx)
+            {
+                rel_pos = 0;
+                bit_sig++;
+            }
+
+            if (bit_sig > 7)
+            {
+                printf("Error. End of file not found.");
+                exit(1);
+            }
+
+            read_bit = (get_image_col_byte(rel_pos, &image_data) >> bit_sig) & 1;
+            read_buffer |= (read_bit << bit_counter);
+            bit_counter++;
+
+            if (bit_counter == 8)
+            {
+                bit_counter = 0;
+                data_buffer[byte_counter] = read_buffer;
+
+                read_buffer = 0;
+                byte_counter++;
+            }
+
+            rel_pos++;
+            true_pos++;
         }
+
+        stego_buffer.file_name = d.file_name;
+        stego_buffer.file_name_size_bytes = d.file_name_size_bytes;
+        stego_buffer.file_size_bytes = d.file_size_bytes;
+        stego_buffer.true_pos = true_pos;
+        stego_buffer.data = data_buffer;
+
+        out_data[file_counter] = stego_buffer;
+        file_counter++;
     }
 
-    memcpy(output, data_buffer, byte_counter);
-    free_header_data(&d);
-    free(data_buffer);
+    out.output_data = out_data;
+    out.num_files = file_counter;
     cleanup_free_buffer(&image_data);
+
+    return out;
 }
 
 int main()
 {
-    compressed_file *c = load_compressed_file("./test/input1.c.bin");
-    unsigned char *testData = c->data;
-    encode_data(c->data, c->data_bits / 8, c->filename, "./test/input.png", "./test/test.png", 0);
+    // Encoding
+    compressed_file *c = load_compressed_file("./test/holy.txt");
+    int length_bytes = c->data_bits / 8;
+    int pos = encode_data(c->data, length_bytes, c->filename, "./test/forger.png", "./test/forger-test.png", 0, 1);
     free_compressed_file(c);
 
-    unsigned char *output = malloc(((c->data_bits / 8) + 1) * sizeof(char));
-    output[c->data_bits / 8] = '\0';
-    decode_image("./test/test.png", output);
+    // compressed_file *c2 = load_compressed_file("./test/input2_c.bin");
+    // int lb = c2->data_bits / 8;
+    // pos = encode_data(c2->data, lb, c2->filename, "./test/test.png", "./test/test2.png", pos, 1);
+    // free_compressed_file(c2);
 
-    while (*output && output != '\0')
+    // Decoding
+    StegoDataCollection output_data = decode_image("./test/forger-test.png");
+    for (int i = 0; i < output_data.num_files; i++)
     {
-        printf("%c", *output);
-        output++;
+        save_compressed_file(output_data.output_data[i].data, output_data.output_data[i].file_size_bytes, "decoded.txt");
     }
-
-    free(output);
+    free_stego_data_collection(&output_data);
 }
