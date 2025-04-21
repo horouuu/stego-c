@@ -39,7 +39,7 @@ The decoded files will retain its original directory structure.
 
 ## Setup and Build
 
-Ensure you have a C compiler installed.
+Ensure you have a C compiler installed (e.g. gcc).
 
 To build the project, run:
 
