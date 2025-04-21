@@ -349,10 +349,10 @@ StegoDataCollection decode_image(const char *input_img_name)
 int main()
 {
     // Encoding
-    compressed_file *c = load_compressed_file("./test/holy.txt");
-    int length_bytes = c->data_bits / 8;
-    int pos = encode_data(c->data, length_bytes, c->filename, "./test/forger.png", "./test/forger-test.png", 0, 1);
-    free_compressed_file(c);
+    // compressed_file *c = load_compressed_file("./test/holy.txt");
+    // int length_bytes = c->data_bits / 8;
+    // int pos = encode_data(c->data, length_bytes, c->filename, "./test/forger.png", "./test/forger-test.png", 0, 1);
+    // free_compressed_file(c);
 
     // compressed_file *c2 = load_compressed_file("./test/input2_c.bin");
     // int lb = c2->data_bits / 8;
@@ -360,10 +360,10 @@ int main()
     // free_compressed_file(c2);
 
     // Decoding
-    StegoDataCollection output_data = decode_image("./test/forger-test.png");
+    StegoDataCollection output_data = decode_image("./test/tester.png");
     for (int i = 0; i < output_data.num_files; i++)
     {
-        save_compressed_file(output_data.output_data[i].data, output_data.output_data[i].file_size_bytes, "decoded.txt");
+        save_compressed_file(output_data.output_data[i].data, output_data.output_data[i].file_size_bytes, output_data.output_data[i].file_name);
     }
     free_stego_data_collection(&output_data);
 }
