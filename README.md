@@ -75,8 +75,8 @@ Output files from decompression are stored under `/decompressor_output`
 Each file within this directory will be a `.c` file.
 
 ### Steganography
-
-### Decoding
+The CLI only supports single-file encoding at the moment. The library, however, is complete and is able to encode an arbitrary number of files.
+See report for methodology.
 
 ## Credits
 
