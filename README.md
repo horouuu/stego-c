@@ -18,12 +18,6 @@ Encoding a single c code file into an image:
 ./stego -e -i input.png -o output.png -f file.c
 ```
 
-Encoding a c source code directory into an image:
-
-```bash
-./stego -e -i input.png -o output.png -fd ./src
-```
-
 Decoding from an image:
 
 ```bash
