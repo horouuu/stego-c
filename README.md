@@ -39,6 +39,20 @@ The decoded files will retain its original directory structure.
 
 ## Setup and Build
 
+Ensure you have a C compiler installed.
+
+To build the project, run:
+
+```bash
+make
+```
+
+To encode the example file into an image:
+
+```bash
+./stego -e -i ./steganography/examples/original/forger.png -o ./forger-test.png -f ./steganography/examples/original/AgentTracker.mp4
+```
+
 ## Features
 
 ### File Reading
