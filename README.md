@@ -1,14 +1,16 @@
 # stego-c
 
-Using Least Significant Bit (LSB) steganography to encode and decode entire c code files into and from an image, in c.
+Using Least Significant Bit (LSB) steganography to encode and decode C code file into and from an image, in C.
 
-This program can perform 2 different functions: encoding c code files/directory into an image, and decoding c code files/directory from an image.
+This program can perform 2 different functions: encoding C code files into an image, and decoding C code files from an image.
 
-In the encoding step, the program reads and compresses all c code files using an elementary string replacement with a predefined map of keywords and their tokens. The lexer then encodes the code file metadata (e.g. file name, compressed byte size) into a fixed header structure followed by the binary data of the compressed file into the least significant bits (LSB) of each colour channel of each pixel in the input image.
+In the encoding step, the program reads and compresses all C code files using an elementary string replacement with a predefined map of keywords and their tokens. The lexer then encodes the code file metadata (e.g. file name, compressed byte size) into a fixed header structure followed by the binary data of the compressed file into the least significant bits (LSB) of each colour channel of each pixel in the input image.
 
-In the case where the data to encode exceeds the number of bits encode-able in the LSB of the image, the lexer will move to the 2nd LSB of the pixel data, and so on and so forth until it reaches the MSB and no further encoding is possible.
+In the case where the data to encode exceeds the number of bits encode-able in the LSB of the image, the lexer will move to the 2nd LSB of the pixel data, and so on and so forth until it reaches the MSB and no further encoding is possible. Users will have to take note that the larger the file to encode, as compared to the input image to encode in, will cause more distortions to the input image.
 
-In the decoding step, the program reads the encoded data, retrieving file metadata from the fixed header entries. The compressed data is then decompressed and reconstructed into a proper c code structure, with its filename and directory structure preserved.
+In the decoding step, the program reads the encoded data, retrieving file metadata from the fixed header entries. The compressed data is then decompressed and reconstructed into a proper C code structure, with its filename preserved.
+
+Although our encoder is optimized to compress C code files, it can technically parse any arbitrary file as long as the image file has enough pixels. If users want to encode multiple files, they’ll have to do it manually.
 
 ## Usage
 
@@ -16,12 +18,6 @@ Encoding a single c code file into an image:
 
 ```bash
 ./stego -e -i input.png -o output.png -f file.c
-```
-
-Encoding a c source code directory into an image:
-
-```bash
-./stego -e -i input.png -o output.png -fd ./src
 ```
 
 Decoding from an image:
@@ -35,16 +31,27 @@ The decoded files will retain its original directory structure.
 ### Flags
 
 - `-h` or `--help`: (boolean) Show help message.
-- `-e` or `--encode`: (boolean) Enable encoding mode. Encode c code files/directory into an image. Cannot be used with decoding mode.
-- `-d` or `--decode`: (boolean) Enable decoding mode. Decode c code files/directory from an image. Cannot be used with encoding mode.
+- `-e` or `--encode`: (boolean) Enable encoding mode. Encode c code file into an image. Cannot be used with decoding mode.
+- `-d` or `--decode`: (boolean) Enable decoding mode. Decode c code file from an image. Cannot be used with encoding mode.
 - `-i`: (string) Input image file name with extension. Accepts PNG, JPG/JPEG, BMP, PSD, TGA, GIF, PIC, PNM (.ppm and .pgm) formats.
 - `-o`: (string) Output image file name with extension, only used for encoding. Accepts PNG, JPG/JPEG, BMP formats.
-- `-f`: (string) Input c code file name with extension/directory, only used for encoding.
-- `-fd`: (string) Input c code directory, only used for encoding.
-
-## Prerequisites
+- `-f`: (string) Input c code file name with extension, only used for encoding.
 
 ## Setup and Build
+
+Ensure you have a C compiler installed (e.g. gcc).
+
+To build the project, run:
+
+```bash
+make
+```
+
+To encode the example file into an image:
+
+```bash
+./stego -e -i ./steganography/examples/original/forger.png -o ./forger-test.png -f ./steganography/examples/original/AgentTracker.mp4
+```
 
 ## Features
 
@@ -68,8 +75,8 @@ Output files from decompression are stored under `/decompressor_output`
 Each file within this directory will be a `.c` file.
 
 ### Steganography
-
-### Decoding
+The CLI only supports single-file encoding at the moment. The library, however, is complete and is able to encode an arbitrary number of files.
+See report for methodology.
 
 ## Credits
 
