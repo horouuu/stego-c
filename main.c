@@ -1,6 +1,7 @@
 #include "./fsm/file_io.h"
 #include "./steganography/stego.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -24,12 +25,11 @@ int main(int argc, char **argsv) {
   /* Initialize variables */
   int i, mode_encoding = 0, mode_decoding = 0;
   char *input_image = NULL, *output_image = NULL, *input_file = NULL,
-       *input_dir = NULL;
+       *input_dir = NULL, *input_file_count = NULL;
 
   FileData *c;
-  int length_bytes;
-  int pos;
-  int j;
+  FileData **col;
+  int length_bytes, pos, j, count;
   StegoDataCollection output_data;
 
   /* Check empty args */
@@ -57,13 +57,17 @@ int main(int argc, char **argsv) {
         printf("  -d, --decode: Enable decoding mode. Decode files "
                "from an image. Cannot be used with encoding "
                "mode.\n");
-        printf("  -i: Input image file name with extension. Accepts PNG, "
+        printf("  -i:  Input image file name with extension. Accepts PNG, "
                "JPG/JPEG, BMP, PSD, TGA, GIF, PIC, PNM (.ppm and .pgm) "
                "formats.\n");
-        printf("  -o: Output image file name with extension. Accepts PNG, "
+        printf("  -o:  Output image file name with extension. Accepts PNG, "
                "JPG/JPEG, BMP formats. Used only in encoding.\n");
-        printf("  -f: Input single file name with extension. Used only "
+        printf("  -f:  Input single file name with extension. Used only "
                "in encoding.\n");
+        printf("  -fd: Input file directory to scan and encode. Used only "
+               "in encoding. Cannot be used with -f.\n");
+        printf("  -fc: Input file count within directory to scan and encode. "
+               "Used only in encoding. Must be used with -fd.\n");
         printf("\nExample usage:\n");
         printf("  %s -e -i input.png -o output.png -f file.c\n", argsv[0]);
         printf("  %s -d -i input.png -o output.c\n", argsv[0]);
@@ -83,6 +87,19 @@ int main(int argc, char **argsv) {
       } else if (strcmp(argsv[i], "-f") == 0) {
         printf("Input file: %s\n", argsv[++i]);
         input_file = argsv[i];
+      }
+      else if (strcmp(argsv[i], "-fd") == 0)
+      {
+        printf("Input directory: %s\n", argsv[++i]);
+        input_dir = argsv[i];
+      }
+      else if (strcmp(argsv[i], "-fc") == 0)
+      {
+        printf("Input file count: %s\n", argsv[++i]);
+        input_file_count = argsv[i];
+      }
+      else
+      {
       } else {
         fprintf(stderr, "Error: Unknown argument: %s\n", argsv[i]);
         return 1;
@@ -106,6 +123,15 @@ int main(int argc, char **argsv) {
     return 1;
   } else if (mode_encoding && input_file && input_dir) {
     fprintf(stderr, "Error: Cannot use both input file and input directory.\n");
+    return 1;
+  }
+  else if (mode_encoding && input_dir && !input_file_count)
+  {
+    fprintf(stderr, "Error: Missing required input file count for -fd flag.");
+    return 1;
+  }
+  else if (mode_decoding && !input_image)
+  {
   } else if (mode_decoding && !input_image) {
     fprintf(stderr, "Error: Missing required arguments for decoding mode.\n");
     fprintf(stderr, "Usage: %s -d -i <input image>\n", argsv[0]);
@@ -119,6 +145,19 @@ int main(int argc, char **argsv) {
                       output_image, 0, 1);
     fprintf(stdout, "Encoding successful with latest index position %d", pos);
     free_file_data(c);
+  }
+  else if (mode_encoding && input_dir && input_file_count)
+  {
+    count = atoi(input_file_count);
+    col = load_multiple_file_data(input_dir, &count);
+    pos = 0;
+    for (j = 0; j < count; j++)
+    {
+      pos = encode_data(col[j]->data, col[j]->data_bits / 8, col[j]->filename, (j == 0) ? input_image : output_image, output_image, pos, (j == (count - 1)));
+    }
+  }
+  else if (mode_decoding && input_image)
+  {
   } else if (mode_decoding && input_image) {
     output_data = decode_image(input_image);
     for (j = 0; j < output_data.num_files; j++) {
